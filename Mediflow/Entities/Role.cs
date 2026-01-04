@@ -1,8 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class Role : IdentityRole
+public sealed class Role
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    [MaxLength(50)]
+    public string Name { get; set; } = "";
+
+    [MaxLength(200)]
+    public string? Description { get; set; }
+
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

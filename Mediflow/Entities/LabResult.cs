@@ -1,23 +1,36 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Mediflow.Entities.Enums;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class LabResult
+public sealed class LabResult
 {
-    public Guid Id { get; set; }
-    
-    [Required]
-    public Guid MedicalRecordId { get; set; }
-    
-    [Required]
-    public string TestName { get; set; }
-    public string TestResult { get; set; }
-    public string ReferenceRange { get; set; }
-    public DateTime TestDate { get; set; }
-    public string? LabName { get; set; }
-    public bool IsAbnormal { get; set; }
-    public string? Comments { get; set; }
-    public string? DocumentUrl { get; set; }
-    
-    public virtual MedicalRecord MedicalRecord { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public Guid PatientId { get; set; }
+    public Patient Patient { get; set; } = null!;
+
+    public Guid? MedicalRecordId { get; set; }
+    public MedicalRecord? MedicalRecord { get; set; }
+
+    public Guid? OrderedByDoctorId { get; set; }
+    public Doctor? OrderedByDoctor { get; set; }
+
+    public Guid? ReviewedByDoctorId { get; set; }
+    public Doctor? ReviewedByDoctor { get; set; }
+
+    [MaxLength(150)]
+    public string TestName { get; set; } = "";
+
+    [MaxLength(4000)]
+    public string? ResultSummary { get; set; }
+
+    public DateOnly ResultDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    [MaxLength(500)]
+    public string? ReportFileUrl { get; set; }
+
+    public LabResultStatus Status { get; set; } = LabResultStatus.Pending;
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

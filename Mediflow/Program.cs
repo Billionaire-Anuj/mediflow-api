@@ -1,83 +1,120 @@
-using Medical.GrpcService.Context;
-using Medical.GrpcService.Extensions;
-using Medical.GrpcService.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text;
+using mediflow.Data;
+using mediflow.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
+builder.Services.AddControllers();
+
+var dataDir = Path.Combine(builder.Environment.ContentRootPath, "Data");
+Directory.CreateDirectory(dataDir);
+
+var dbPath = Path.Combine(dataDir, "mediflow.db");
+var connectionString = $"Data Source={dbPath}";
+
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.ListenAnyIP(7084, listenOptions =>
+    options.UseSqlite(connectionString);
+
+    if (builder.Environment.IsDevelopment())
     {
-        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
-        listenOptions.UseHttps("server.pfx", "P@ssw0rd!");
-    });
+        options.EnableDetailedErrors();
+        options.EnableSensitiveDataLogging();
+    }
 });
 
-// Add services to the container.
-builder.Services.AddApplicationServices(builder.Configuration);
-builder.Services.AddIdentityServices(builder.Configuration);
-builder.Services.AddGrpc(options => { options.EnableDetailedErrors = true; });
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowGrpcWeb", builder =>
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+if (string.IsNullOrWhiteSpace(jwt.Key) || jwt.Key.Length < 32)
+    throw new InvalidOperationException("Jwt:Key must be set and at least 32 characters long.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Mediflow API",
+        Version = "v1",
+    });
+
+    c.EnableAnnotations();
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            []
+        }
     });
 });
-
-builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
-try
+await using (var scope = app.Services.CreateAsyncScope())
 {
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.MigrateAndCreateDataAsync(scope.ServiceProvider);
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    await DbSeeder.SeedAsync(db, app.Configuration);
 }
-catch (Exception ex)
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occurred while migrating or seeding the database");
-    throw;
-}
+builder.Services.AddScoped<ITimeSlotGenerator, TimeSlotGenerator>();
 
-// Configure middleware
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
-app.UseCors("AllowGrpcWeb");
-app.UseGrpcWeb(new GrpcWebOptions { DefaultEnabled = true });
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGrpcService<AuthenticationGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<AppointmentGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<DoctorGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<PatientGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<MedicalRecordGrpcService>().EnableGrpcWeb();
-
-app.MapHealthChecks("/health");
-
-app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");
-
-app.MapGet("/version", () => new
-{
-    Version = "1.0.0",
-    Environment = app.Environment.EnvironmentName
-});
-
-app.MapGet("/docs", () => Results.Redirect("https://github.com/TheMysteriousStranger90/MedicalApp"));
-
+app.MapControllers();
 
 app.Run();

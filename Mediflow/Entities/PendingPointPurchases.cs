@@ -1,25 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Mediflow.Entities.Enums;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class PendingPointPurchases
+public sealed class PendingPointPurchases
 {
-    [Key]
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public string PatientId { get; set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 
-    [ForeignKey(nameof(PatientId))]
-    public Patient Patient { get; set; }
-
-    [Required]
-    [Range(1, int.MaxValue)]
     public int Points { get; set; }
 
-    [Required]
-    public string Pidx { get; set; }
+    public decimal Amount { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [MaxLength(10)]
+    public string Currency { get; set; } = "NPR";
+
+    public PaymentProvider Provider { get; set; }
+
+    [MaxLength(120)]
+    public string ProviderReference { get; set; } = "";
+
+    public PurchaseStatus Status { get; set; } = PurchaseStatus.Pending;
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTimeOffset? ExpiresAt { get; set; }
 }

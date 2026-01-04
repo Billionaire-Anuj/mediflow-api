@@ -1,8 +1,10 @@
-﻿namespace Medical.GrpcService.Entities.Enums;
+namespace Mediflow.Entities.Enums;
 
 public enum AppointmentStatus
 {
-    Scheduled,
-    Completed,
-    Cancelled
+    Booked = 1,
+    CheckedIn = 2,
+    Completed = 3,
+    Cancelled = 4,
+    NoShow = 5
 }

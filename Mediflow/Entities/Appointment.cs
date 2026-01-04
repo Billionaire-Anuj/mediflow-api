@@ -1,33 +1,35 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Medical.GrpcService.Entities.Enums;
+using System.ComponentModel.DataAnnotations;
+using Mediflow.Entities.Enums;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
 public class Appointment
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public string DoctorId { get; set; }
+    public Guid DoctorId { get; set; }
+    public Doctor Doctor { get; set; } = null!;
 
-    [Required]
-    public string PatientId { get; set; }
+    public Guid PatientId { get; set; }
+    public Patient Patient { get; set; } = null!;
 
-    [Required]
-    public DateTime AppointmentDate { get; set; }
+    public Guid TimeSlotId { get; set; }
+    public TimeSlot TimeSlot { get; set; } = null!;
 
-    [Required]
-    public AppointmentStatus Status { get; set; }
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Booked;
 
+    [MaxLength(200)]
+    public string? Reason { get; set; }
+
+    [MaxLength(2000)]
     public string? Notes { get; set; }
-    public string? Symptoms { get; set; }
-    public double Fee { get; set; }
-    public bool IsPaid { get; set; }
+
+    [MaxLength(500)]
     public string? CancellationReason { get; set; }
 
-    public virtual Doctor Doctor { get; set; }
-    public virtual Patient Patient { get; set; }
-    
-    public Guid? MedicalRecordId { get; set; }
-    public virtual MedicalRecord? MedicalRecord { get; set; }
+    public int PointsUsed { get; set; } = 0;
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? UpdatedAt { get; set; }
 }

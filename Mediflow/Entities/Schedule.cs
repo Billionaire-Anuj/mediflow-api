@@ -1,29 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class Schedule
+public sealed class Schedule
 {
-    public Guid Id { get; set; }
-    
-    [Required]
-    public string DoctorId { get; set; }
-    
-    [Required]
-    public DayOfWeek DayOfWeek { get; set; }
-    
-    [Required]
-    public TimeSpan StartTime { get; set; }
-    
-    [Required]
-    public TimeSpan EndTime { get; set; }
-    
-    public int SlotDurationMinutes { get; set; } = 30;
-    public bool IsAvailable { get; set; } = true;
-    public DateTime? ValidFrom { get; set; }
-    public DateTime? ValidTo { get; set; }
-    public string? Notes { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    public virtual Doctor Doctor { get; set; }
-    public virtual ICollection<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
+    public Guid DoctorId { get; set; }
+    public Doctor Doctor { get; set; } = null!;
+
+    // A schedule is for a single day (simple + practical)
+    public DateOnly WorkDate { get; set; }
+
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
+
+    public int SlotMinutes { get; set; } = 15;
+
+    [MaxLength(120)]
+    public string? Location { get; set; }
+
+    public bool IsPublished { get; set; } = true;
+
+    public ICollection<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
+
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

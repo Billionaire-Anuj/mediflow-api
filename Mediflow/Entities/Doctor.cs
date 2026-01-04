@@ -1,23 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class Doctor : User
+public sealed class Doctor
 {
-    [Required]
-    [StringLength(100)]
-    public string FullName { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public string Specialization { get; set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 
-    [Required]
-    public string LicenseNumber { get; set; }
+    [MaxLength(120)]
+    public string Specialty { get; set; } = "";
 
-    public string? Education { get; set; }
-    public string? Experience { get; set; }
-    public decimal ConsultationFee { get; set; }
+    [MaxLength(50)]
+    public string? LicenseNumber { get; set; }
 
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    [MaxLength(2000)]
+    public string? Bio { get; set; }
+
+    public int DefaultSlotMinutes { get; set; } = 15;
+
+    public decimal? ConsultationFee { get; set; }
+
+    public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public ICollection<MedicalRecord> MedicalRecordsAuthored { get; set; } = new List<MedicalRecord>();
+    public ICollection<LabResult> LabResultsOrdered { get; set; } = new List<LabResult>();
+    public ICollection<LabResult> LabResultsReviewed { get; set; } = new List<LabResult>();
 }

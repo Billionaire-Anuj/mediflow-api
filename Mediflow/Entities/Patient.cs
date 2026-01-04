@@ -1,30 +1,31 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Medical.GrpcService.Entities.Enums;
+using System.ComponentModel.DataAnnotations;
+using Mediflow.Entities.Enums;
 
-namespace Medical.GrpcService.Entities;
+namespace mediflow.Entities;
 
-public class Patient : User
+public sealed class Patient
 {
-    [Required]
-    [StringLength(100)]
-    public string FullName { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public DateTime DateOfBirth { get; set; }
+    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 
-    [Required]
-    public Gender Gender { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
 
-    [Phone]
-    public string Phone { get; set; }
+    [MaxLength(200)]
+    public string? Address { get; set; }
 
-    public string Address { get; set; }
-    public string? EmergencyContact { get; set; }
+    [MaxLength(30)]
     public string? BloodGroup { get; set; }
-    public string? Allergies { get; set; }
-    public string? ChronicConditions { get; set; }
-    public decimal? MembershipPoints { get; set; }
-    
-    public virtual ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    [MaxLength(80)]
+    public string? EmergencyContactName { get; set; }
+
+    [MaxLength(30)]
+    public string? EmergencyContactPhone { get; set; }
+
+    public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+    public ICollection<LabResult> LabResults { get; set; } = new List<LabResult>();
 }
