@@ -1,11 +1,10 @@
 using System.Text;
 using mediflow.Data;
 using mediflow.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -102,7 +101,8 @@ await using (var scope = app.Services.CreateAsyncScope())
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(db, app.Configuration);
 }
-builder.Services.AddScoped<ITimeSlotGenerator, TimeSlotGenerator>();
+
+// builder.Services.AddScoped<ITimeSlotGenerator, TimeSlotGenerator>();
 
 if (app.Environment.IsDevelopment())
 {
