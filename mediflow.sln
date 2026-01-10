@@ -1,6 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mediflow", "mediflow\mediflow.csproj", "{7FA98833-83B4-4268-8FF4-AC343387EF7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mediflow", "src\API\Mediflow\Mediflow.csproj", "{7FA98833-83B4-4268-8FF4-AC343387EF7F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E5CFF3A-44CD-455F-B360-5983690A8A4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{D6B2EA81-F785-4C25-96D2-99B3A825DD01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4D1A2DE2-4B13-4312-9E75-4EFC3BE1FAC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{03CA82A5-AC20-49EA-A4FE-DC59CFE141AB}"
+	ProjectSection(SolutionItems) = preProject
+		docker\docker-compose.yml = docker\docker-compose.yml
+		docker\docker-compose.Development.yml = docker\docker-compose.Development.yml
+		docker\docker-compose.Production.yml = docker\docker-compose.Production.yml
+		docker\docker-compose.Staging.yml = docker\docker-compose.Staging.yml
+		docker\Dockerfile = docker\Dockerfile
+		docker\nuget.config = docker\nuget.config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mediflow.Tests", "tests\Mediflow.Tests\Mediflow.Tests.csproj", "{04739AEA-34A4-46E3-80F3-9783A567DCA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +30,14 @@ Global
 		{7FA98833-83B4-4268-8FF4-AC343387EF7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FA98833-83B4-4268-8FF4-AC343387EF7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FA98833-83B4-4268-8FF4-AC343387EF7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04739AEA-34A4-46E3-80F3-9783A567DCA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04739AEA-34A4-46E3-80F3-9783A567DCA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04739AEA-34A4-46E3-80F3-9783A567DCA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04739AEA-34A4-46E3-80F3-9783A567DCA9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D6B2EA81-F785-4C25-96D2-99B3A825DD01} = {9E5CFF3A-44CD-455F-B360-5983690A8A4C}
+		{7FA98833-83B4-4268-8FF4-AC343387EF7F} = {D6B2EA81-F785-4C25-96D2-99B3A825DD01}
+		{04739AEA-34A4-46E3-80F3-9783A567DCA9} = {4D1A2DE2-4B13-4312-9E75-4EFC3BE1FAC0}
 	EndGlobalSection
 EndGlobal

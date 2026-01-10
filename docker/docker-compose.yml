@@ -1,0 +1,35 @@
+﻿name: mediflow
+services:
+  mediflow-api:
+    container_name: mediflow-api
+    image: affinity/mediflow-api:development
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=*****
+    ports:
+      - "0000:0000"
+    networks:
+      - your_common_network
+    depends_on:
+      - image_name
+    volumes:
+      - volume_directory:/path/directory
+    dns:
+      - 0.0.0.0
+      - 0.0.0.0
+  
+  image_name:
+    image: your_image_name
+    environment:
+      - POSTGRES_USER=****
+      - POSTGRES_PASSWORD=****
+      - POSTGRES_DB=****
+
+networks:
+  your_common_network:
+    driver: bridge
+
+volumes:
+  volume_directory:
