@@ -258,11 +258,17 @@ appsettings.Development.json
 appsettings.Staging.json
 appsettings.Production.json
 
-!menu.json
-!menu.example.json
-menu.Development.json
-menu.Staging.json
-menu.Production.json
+!client.json
+!client.example.json
+client.Development.json
+client.Staging.json
+client.Production.json
+
+!jwt.json
+!jwt.example.json
+jwt.Development.json
+jwt.Staging.json
+jwt.Production.json
 
 !client.json
 !client.example.json
@@ -270,11 +276,23 @@ client.Development.json
 client.Staging.json
 client.Production.json
 
-!questionnaire.json
-!questionnaire.example.json
-questionnaire.Development.json
-questionnaire.Staging.json
-questionnaire.Production.json
+!database.json
+!database.example.json
+database.Development.json
+database.Staging.json
+database.Production.json
+
+!seed.json
+!seed.example.json
+seed.Development.json
+seed.Staging.json
+seed.Production.json
+
+!smtp.json
+!smtp.example.json
+smtp.Development.json
+smtp.Staging.json
+smtp.Production.json
 
 # Docker Files
 !docker-compose.yml

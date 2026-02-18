@@ -1,0 +1,3 @@
+namespace Mediflow.Application.DTOs.Authentication.Configurations._2FA;
+
+public class TwoFactorAuthenticationConfiguration : AbstractTwoFactorAuthenticationConfiguration;

@@ -1,0 +1,8 @@
+{
+    "SmtpSettings": {
+        "Server": "*****",
+        "Port": 0,
+        "Username": "*********",
+        "Password": "*************"
+    }
+}

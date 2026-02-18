@@ -1,0 +1,9 @@
+{
+    "JwtSettings": {
+        "Key": "**********",
+        "Audience": "**********",
+        "Issuer": "**********",
+        "AccessTokenExpirationInMinutes": 0,
+        "RefreshTokenExpirationInDays": 0
+    }
+}

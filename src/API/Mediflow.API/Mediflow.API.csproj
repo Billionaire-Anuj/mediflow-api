@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>Mediflow.API</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Infrastructure\Mediflow.Infrastructure\Mediflow.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Migrators\Mediflow.Migrators.PostgreSQL\Mediflow.Migrators.PostgreSQL.csproj" />
+        <ProjectReference Include="..\..\Migrators\Mediflow.Migrators.SQLServer\Mediflow.Migrators.SQLServer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="Configurations\client.Development.json">
+            <DependentUpon>client.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\client.Production.json">
+            <DependentUpon>client.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\client.Staging.json">
+            <DependentUpon>client.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\jwt.Development.json">
+            <DependentUpon>jwt.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\jwt.Production.json">
+            <DependentUpon>jwt.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\jwt.Staging.json">
+            <DependentUpon>jwt.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\seed.Development.json">
+            <DependentUpon>seed.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\seed.Production.json">
+            <DependentUpon>seed.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\seed.Staging.json">
+            <DependentUpon>seed.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\smtp.Development.json">
+            <DependentUpon>smtp.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\smtp.Production.json">
+            <DependentUpon>smtp.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\smtp.Staging.json">
+            <DependentUpon>smtp.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\database.Development.json">
+          <DependentUpon>database.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\database.Production.json">
+          <DependentUpon>database.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\database.Staging.json">
+          <DependentUpon>database.json</DependentUpon>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="wwwroot\" />
+    </ItemGroup>
+</Project>

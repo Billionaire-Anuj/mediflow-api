@@ -1,0 +1,7 @@
+{
+    "DatabaseSettings": {
+        "DbProvider": "*****",
+        "NpgSqlConnectionString": "Host=*****;Port=****;Database=*****;Username=*****;Password=*****;Include Error Detail=true",
+        "SqlServerConnectionString": "Server=*****;Database=*****;Trusted_Connection=True;User ID=*****;Password=*****;MultipleActiveResultSets=true;Encrypt=False;"
+    }
+}

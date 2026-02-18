@@ -1,0 +1,3 @@
+﻿namespace Mediflow.Application.DTOs.Authentication.Configurations.ForgotPassword;
+
+public class ForgotPasswordConfirmationConfiguration : AbstractForgotPasswordConfirmation;
