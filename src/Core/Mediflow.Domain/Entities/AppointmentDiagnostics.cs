@@ -1,9 +1,14 @@
 using Mediflow.Domain.Common.Enum;
+using Mediflow.Domain.Common.Base;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mediflow.Domain.Entities;
 
-public class AppointmentDiagnostics(Guid appointmentId, Guid? labTechnicianId, string notes, DiagnosticStatus status = DiagnosticStatus.Appointed)
+public class AppointmentDiagnostics(
+    Guid appointmentId,
+    Guid? labTechnicianId,
+    string notes,
+    DiagnosticStatus status = DiagnosticStatus.Appointed) : AuditableEntity<Guid>
 {
     [ForeignKey(nameof(Appointment))]
     public Guid AppointmentId { get; private set; } = appointmentId;

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Mediflow.Domain.Common.Base;
 
 namespace Mediflow.Domain.Entities;
 
@@ -8,7 +9,7 @@ public class AppointmentDiagnosticTestResult(
     string unit,
     string upperRange,
     string lowerRange,
-    string interpretation)
+    string interpretation) : AuditableEntity<Guid>
 {
     [ForeignKey(nameof(AppointmentDiagnosticTests))]
     public Guid AppointmentDiagnosticTestId { get; private set; } = appointmentDiagnosticTestId;

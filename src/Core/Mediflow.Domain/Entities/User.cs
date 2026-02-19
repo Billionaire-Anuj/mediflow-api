@@ -62,6 +62,8 @@ public class User(
     #region Doctor Specific Navigation Properties
     public virtual DoctorInformation? DoctorInformation { get; set; }
 
+    public virtual ICollection<Appointment>? DoctorAppointments { get; set; } = new List<Appointment>();
+
     public virtual ICollection<Schedule>? Schedules { get; set; } = new List<Schedule>();
 
     public virtual ICollection<DoctorSpecialization>? DoctorSpecializations { get; set; } = new List<DoctorSpecialization>();
