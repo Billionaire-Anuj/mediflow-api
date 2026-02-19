@@ -45,7 +45,7 @@ public static class ControllerConfiguration
         // var assemblies = Assembly
         //     .GetExecutingAssembly()
         //     .GetReferencedAssemblies()
-        //     .Where(x => x.FullName.StartsWith("GVAC."))
+        //     .Where(x => x.FullName.StartsWith("Mediflow."))
         //     .Select(Assembly.Load)
         //     .Append(Assembly.GetExecutingAssembly());
         //

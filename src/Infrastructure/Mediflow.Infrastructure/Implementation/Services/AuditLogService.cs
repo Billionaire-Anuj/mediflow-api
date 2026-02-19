@@ -12,9 +12,6 @@ public class AuditLogService(IApplicationDbContext applicationDbContext) : IAudi
     {
         var auditLogModels = applicationDbContext.AuditLogs
             .Where(x => x.EntityId == entityId.ToString())
-            .Include(x => x.Auditor)
-            .Include(x => x.Auditor!.Role)
-            .Include(x => x.AuditLogHistories)
             .AsNoTracking()
             .AsQueryable();
 

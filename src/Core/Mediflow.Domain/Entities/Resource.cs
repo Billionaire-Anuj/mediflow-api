@@ -6,7 +6,9 @@ public class Resource(string name, string description) : BaseEntity<Guid>
 {
     public string Name { get; private set; } = name;  
 
-    public string Description { get; private set; } = description; 
+    public string Description { get; private set; } = description;
 
-    public virtual ICollection<Permission>? Permissions { get; set; }
+    public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();
+
+    public static Resource Default => new(string.Empty, string.Empty);
 }

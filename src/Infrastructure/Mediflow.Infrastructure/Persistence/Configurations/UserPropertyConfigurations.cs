@@ -1,14 +1,14 @@
-﻿using Mediflow.Domain.Entities;
-using Newtonsoft.Json;
-using Mediflow.Domain.Common.Property;
+﻿using Newtonsoft.Json;
+using Mediflow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Mediflow.Domain.Common.Property;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Mediflow.Infrastructure.Persistence.Configurations;
 
-public sealed class UserConfigurationConfigurations : IEntityTypeConfiguration<UserConfiguration>
+public sealed class UserPropertyConfigurations : IEntityTypeConfiguration<UserProperty>
 {
-    public void Configure(EntityTypeBuilder<UserConfiguration> builder)
+    public void Configure(EntityTypeBuilder<UserProperty> builder)
     {
         builder
             .Property(x => x.UserId)

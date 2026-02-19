@@ -52,7 +52,7 @@ internal static class SwaggerConfiguration
     
         app.UseSwaggerUI(options =>
         {
-            options.SwaggerEndpoint("/openapi/v1.json", "GVAC API v1");
+            options.SwaggerEndpoint("/openapi/v1.json", "Mediflow API v1");
             options.DefaultModelsExpandDepth(-1);
             options.DocExpansion(DocExpansion.None);
             options.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");

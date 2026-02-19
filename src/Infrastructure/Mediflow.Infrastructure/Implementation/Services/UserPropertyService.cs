@@ -9,7 +9,7 @@ using Mediflow.Application.Interfaces.Services;
 
 namespace Mediflow.Infrastructure.Implementation.Services;
 
-public class UserConfigurationService(IApplicationDbContext applicationDbContext) : IUserConfigurationService
+public class UserPropertyService(IApplicationDbContext applicationDbContext) : IUserPropertyService
 {
     public T? GetProperty<T>(Guid userId, string key)
     {
@@ -18,13 +18,13 @@ public class UserConfigurationService(IApplicationDbContext applicationDbContext
             .FirstOrDefault(x => x.Id == userId)
             ?? throw new NotFoundException("The user could not be found.");
 
-        var userConfiguration =
-            applicationDbContext.UserConfigurations.FirstOrDefault(x =>
+        var userProperty =
+            applicationDbContext.UserProperties.FirstOrDefault(x =>
                 x.UserId == user.Id && x.Configurations.Key == key);
 
-        if (userConfiguration == null) return default;
+        if (userProperty == null) return default;
 
-        var value = userConfiguration.Configurations.Value;
+        var value = userProperty.Configurations.Value;
 
         switch (value)
         {
@@ -60,7 +60,7 @@ public class UserConfigurationService(IApplicationDbContext applicationDbContext
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
-        var properties = applicationDbContext.UserConfigurations.Where(x => x.UserId == user.Id).AsQueryable();
+        var properties = applicationDbContext.UserProperties.Where(x => x.UserId == user.Id).AsQueryable();
 
         return properties.Select(x => x.Configurations).ToList();
     }
@@ -72,7 +72,7 @@ public class UserConfigurationService(IApplicationDbContext applicationDbContext
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
-        var userConfiguration = applicationDbContext.UserConfigurations.FirstOrDefault(x => 
+        var userProperty = applicationDbContext.UserProperties.FirstOrDefault(x => 
             x.UserId == user.Id && x.Configurations.Key == key);
 
         var property = new KeyValueProperty
@@ -81,17 +81,17 @@ public class UserConfigurationService(IApplicationDbContext applicationDbContext
             Value = value
         };
 
-        if (userConfiguration == null)
+        if (userProperty == null)
         {
-            var userConfigurationModel = new UserConfiguration(user.Id, property);
+            var userPropertyModel = new UserProperty(user.Id, property);
 
-            applicationDbContext.UserConfigurations.Add(userConfigurationModel);
+            applicationDbContext.UserProperties.Add(userPropertyModel);
         }
         else
         {
-            userConfiguration.UpdateConfigurations(property);
+            userProperty.UpdateConfigurations(property);
             
-            applicationDbContext.UserConfigurations.Update(userConfiguration);
+            applicationDbContext.UserProperties.Update(userProperty);
         }
 
         applicationDbContext.SaveChanges();
@@ -104,11 +104,11 @@ public class UserConfigurationService(IApplicationDbContext applicationDbContext
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
-        var userConfiguration = applicationDbContext.UserConfigurations.FirstOrDefault(x => 
+        var userProperty = applicationDbContext.UserProperties.FirstOrDefault(x => 
                                     x.UserId == user.Id && x.Configurations.Key == key)
                                 ?? throw new NotFoundException("The following user's configuration could not be found.");
 
-        applicationDbContext.UserConfigurations.RemoveRange(userConfiguration);
+        applicationDbContext.UserProperties.RemoveRange(userProperty);
 
         applicationDbContext.SaveChanges();
     }

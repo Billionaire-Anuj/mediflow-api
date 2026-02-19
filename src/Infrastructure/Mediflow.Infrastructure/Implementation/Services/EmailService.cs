@@ -21,9 +21,9 @@ public class EmailService(IWebHostEnvironment webHostEnvironment) : IEmailServic
             using var emailMessage = new MimeMessage();
 
             #region Senders and Receivers
-            var emailFrom = new MailboxAddress("GVAC", email.Smtp.Username);
+            var emailFrom = new MailboxAddress("Mediflow", email.Smtp.Username);
             var emailTo = new MailboxAddress(email.FullName, email.ToEmailAddress);
-            var emailBcc = new MailboxAddress("Affinity", "siddhartha.affinity@gmail.com");
+            var emailBcc = new MailboxAddress("Mediflow", "mediflow@root.com");
 
             emailMessage.From.Add(emailFrom);
             emailMessage.To.Add(emailTo);

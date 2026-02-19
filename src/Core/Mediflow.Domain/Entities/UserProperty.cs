@@ -4,15 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mediflow.Domain.Entities;
 
-// TODO: Should we rename this to User Property?
-public class UserConfiguration(Guid userId, KeyValueProperty configurations) : BaseEntity<Guid>
+public class UserProperty(Guid userId, KeyValueProperty configurations) : BaseEntity<Guid>
 {
     [ForeignKey(nameof(User))] 
     public Guid UserId { get; private set; } = userId;
 
     public KeyValueProperty Configurations { get; private set; } = configurations;
 
-    public virtual User? User { get; set; }
+    public virtual User User { get; set; } = User.Default;
 
     public void UpdateConfigurations(KeyValueProperty configurations)
     {

@@ -2,7 +2,7 @@ using Mediflow.Domain.Common.Base;
 
 namespace Mediflow.Domain.Entities;
 
-public class Role(string name, string description, bool isDisplayed, bool isRegisterable): BaseEntity<Guid>
+public class Role(string name, string description, bool isDisplayed, bool isRegisterable) : BaseEntity<Guid>
 {
     public string Name { get; private set; } = name;
 
@@ -14,11 +14,11 @@ public class Role(string name, string description, bool isDisplayed, bool isRegi
     // The following property is used to determine whether the role can be registered as a user role or not and will not be exposed to the REST API.
     public bool IsRegisterable { get; private set; } = isRegisterable;
 
-    public virtual ICollection<User>? Users { get; set; }
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 
-    public virtual ICollection<Permission>? Permissions { get; set; }
+    public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 
-    public static Role Default { get; } = new(string.Empty, string.Empty, false, false);
+    public static Role Default => new(string.Empty, string.Empty, false, false);
 
     public void Update(string name, string description, bool isDisplayed, bool isRegisterable)
     {

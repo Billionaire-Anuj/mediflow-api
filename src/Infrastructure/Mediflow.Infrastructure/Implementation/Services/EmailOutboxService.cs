@@ -257,7 +257,7 @@ public class EmailOutboxService(
                         emailModel.Otp = forgotPasswordEmail.Otp;
                         emailModel.UserEmailAddress = userModel.EmailAddress;
                         emailModel.OtpExpiryMinutes = forgotPasswordEmail.OtpExpiryMinutes;
-                        emailModel.SupportEmail = "support@gvac.com";
+                        emailModel.SupportEmail = "support@mediflow.com";
                     }
 
                     break;
@@ -287,7 +287,7 @@ public class EmailOutboxService(
                         emailModel.ApplicationRoleName = applicationRoleModel.Name;
                         emailModel.UserCredentials = $"{userModel.Username} or {userModel.EmailAddress}";
                         emailModel.TemporaryPassword = resetPasswordEmail.Password;
-                        emailModel.SupportEmail = "support@gvac.com";
+                        emailModel.SupportEmail = "support@mediflow.com";
                     }
 
                     break;

@@ -1,7 +1,7 @@
 using Mediflow.Domain.Common.Base;
+using Mediflow.Domain.Common.Enum;
 using Mediflow.Domain.Entities.Audits;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mediflow.Domain.Common.Enum;
 
 namespace Mediflow.Domain.Entities;
 
@@ -39,11 +39,35 @@ public class User(
 
     public bool Is2FactorAuthenticationEnabled { get; private set; } = is2FactorAuthenticationEnabled;
 
-    public virtual Role? Role { get; set; }
+    public virtual Role Role { get; set; } = Role.Default;
 
-    public virtual ICollection<AuditLog>? AuditLogs { get; set; }
+    #region Generic Navigation Properties
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
-    public virtual ICollection<UserLoginLog>? UserLoginLogs { get; set; }
+    public virtual ICollection<UserLoginLog> UserLoginLogs { get; set; } = new List<UserLoginLog>();
+    #endregion
+
+    #region Patient Specific Navigation Properties
+    public virtual PatientCredit? Credit { get; set; }
+
+    public virtual ICollection<Appointment> PatientAppointments { get; set; } = new List<Appointment>();
+    #endregion
+
+    #region Pharmacits & Lab Technician Specific Navigation Properties
+    public virtual ICollection<AppointmentDiagnostics> AppointmentDiagnostics { get; set; } = new List<AppointmentDiagnostics>();
+
+    public virtual ICollection<AppointmentMedications> AppointmentMedications { get; set; } = new List<AppointmentMedications>();
+    #endregion
+
+    #region Doctor Specific Navigation Properties
+    public virtual DoctorInformation? DoctorInformation { get; set; }
+
+    public virtual ICollection<Schedule>? Schedules { get; set; } = new List<Schedule>();
+
+    public virtual ICollection<DoctorSpecialization>? DoctorSpecializations { get; set; } = new List<DoctorSpecialization>();
+    #endregion
+
+    public static User Default => new(Guid.Empty, Gender.Male, string.Empty, string.Empty, string.Empty, null, null, string.Empty, string.Empty);
 
     public void Update(Guid roleId, Gender gender, string name, string username, string emailAddress, string? address, string phoneNumber)
     {

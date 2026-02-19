@@ -53,7 +53,6 @@ public class UserService(
                 (address == null || (x.Address != null && x.Address.ToLower().Contains(address.ToLower()))) &&
                 (phoneNumber == null || x.PhoneNumber.ToLower().Contains(phoneNumber.ToLower())) &&
                 (roleIdentifiers == null || roleIdentifiers.Contains(x.RoleId)))
-            .Include(x => x.Role)
             .OrderBy(x => orderBys)
             .AsNoTracking()
             .AsQueryable();
@@ -95,7 +94,6 @@ public class UserService(
                 (address == null || (x.Address != null && x.Address.ToLower().Contains(address.ToLower()))) &&
                 (phoneNumber == null || x.PhoneNumber.ToLower().Contains(phoneNumber.ToLower())) &&
                 (roleIdentifiers == null || roleIdentifiers.Contains(x.RoleId)))
-            .Include(x => x.Role)
             .OrderBy(x => orderBys)
             .AsNoTracking()
             .AsQueryable();
@@ -106,7 +104,6 @@ public class UserService(
     public UserDto GetUserById(Guid userId)
     {
         var userModel = applicationDbContext.Users
-                .Include(x => x.Role)
                 .FirstOrDefault(x => x.Id == userId)
                         ?? throw new NotFoundException($"User with identifier '{userId}' was not found.");
 
@@ -262,7 +259,6 @@ public class UserService(
     public void ActivateDeactivateUser(Guid userId)
     {
         var userModel = applicationDbContext.Users
-                            .Include(x => x.Role)
                             .FirstOrDefault(x => x.Id == userId) 
                         ?? throw new NotFoundException($"User with identifier '{userId}' was not found.");
 

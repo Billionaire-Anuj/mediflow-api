@@ -15,8 +15,8 @@ public class TokenCookieMiddleware(RequestDelegate next, IWebHostEnvironment web
             {
                 logger.LogDebug("Cookies Found. Stitching Them Together...");
                 
-                var tokenSignature = context.Request.Cookies["X-GVAC-Token-Signature"];
-                var tokenHeaderAndPayload = context.Request.Cookies["X-GVAC-Token-Payload"];
+                var tokenSignature = context.Request.Cookies["X-Mediflow-Token-Signature"];
+                var tokenHeaderAndPayload = context.Request.Cookies["X-Mediflow-Token-Payload"];
                 
                 var token = $"{tokenHeaderAndPayload}.{tokenSignature}";
                 

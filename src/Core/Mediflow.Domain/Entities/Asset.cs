@@ -17,5 +17,5 @@ public class Asset(string fileUrl, string originalFileName, double? aspectRatio 
     [JsonPropertyName("Orientation")]
     public Orientation? Orientation { get; private set; } = orientation;
 
-    public static Asset Default { get; } = new(string.Empty, string.Empty);
+    public static Asset Default => new(string.Empty, string.Empty);
 }

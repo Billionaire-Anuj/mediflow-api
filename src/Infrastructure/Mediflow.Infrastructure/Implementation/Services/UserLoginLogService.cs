@@ -56,8 +56,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
             .OrderBy(x => x.Id)
-            .Include(x => x.User)
-                .ThenInclude(x => x!.Role)
             .AsNoTracking()
             .AsQueryable();
 
@@ -114,8 +112,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
             .OrderBy(x => x.Id)
-            .Include(x => x.User)
-                .ThenInclude(x => x!.Role)
             .AsNoTracking()
             .AsQueryable();
 
@@ -173,8 +169,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
             .OrderBy(x => x.Id)
-            .Include(x => x.User)
-                .ThenInclude(x => x!.Role)
             .AsNoTracking()
             .AsQueryable();
 
@@ -235,8 +229,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
             .OrderBy(x => x.Id)
-            .Include(x => x.User)
-                .ThenInclude(x => x!.Role)
             .AsNoTracking()
             .AsQueryable();
 
@@ -246,8 +238,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
     public UserLoginLogDto GetUserLoginLogById(Guid userLoginLogId)
     {
         var userLoginLogModel = applicationDbContext.UserLoginLogs
-                                    .Include(x => x.User)
-                                        .ThenInclude(x => x!.Role)
                                     .AsNoTracking()
                                     .FirstOrDefault(x => x.Id == userLoginLogId)
                                 ?? throw new NotFoundException($"User login log with identifier '{userLoginLogId}' was not found.");

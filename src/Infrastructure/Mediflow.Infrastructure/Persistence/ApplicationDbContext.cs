@@ -14,7 +14,6 @@ using Mediflow.Application.Interfaces.Data;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-
 namespace Mediflow.Infrastructure.Persistence;
 
 public class ApplicationDbContext(
@@ -32,7 +31,49 @@ public class ApplicationDbContext(
 
     public DbSet<UserLoginLog> UserLoginLogs { get; set; }
 
-    public DbSet<UserConfiguration> UserConfigurations { get; set; }
+    public DbSet<UserProperty> UserProperties { get; set; }
+    #endregion
+
+    #region Appointments
+    public DbSet<Appointment> Appointments { get; set; }
+
+    public DbSet<AppointmentDiagnostics> AppointmentDiagnostics { get; set; }
+
+    public DbSet<AppointmentDiagnosticTestResult> AppointmentDiagnosticTestResults { get; set; }
+
+    public DbSet<AppointmentDiagnosticTests> AppointmentDiagnosticTests { get; set; }
+
+    public DbSet<AppointmentMedicationDrugs> AppointmentMedicationDrugs { get; set; }
+
+    public DbSet<AppointmentMedications> AppointmentMedications { get; set; }
+
+    public DbSet<MedicalRecord> MedicalRecords { get; set; }
+    #endregion
+
+    #region Doctor Information
+    public DbSet<DoctorInformation> DoctorInformation { get; set; }
+
+    public DbSet<DoctorSpecialization> DoctorSpecializations { get; set; }
+
+    public DbSet<Schedule> Schedules { get; set; }
+
+    public DbSet<Timeslot> Timeslot { get; set; }
+    #endregion
+
+    #region Patient Information
+    public DbSet<PatientCredit> PatientCredits { get; set; }
+    #endregion
+
+    #region Core Data
+    public DbSet<DiagnosticType> DiagnosticTypes { get; set; }
+
+    public DbSet<DiagnosticTest> DiagnosticTests { get; set; }
+
+    public DbSet<MedicationType> MedicationTypes { get; set; }
+
+    public DbSet<Medicine> Medicines { get; set; }
+
+    public DbSet<Specialization> Specializations { get; set; }
     #endregion
 
     #region Gloal Settings
@@ -160,7 +201,7 @@ public class ApplicationDbContext(
         bool IsPermissionType(Type type) => type == typeof(Permission);
         bool IsEmailOutboxType(Type type) => type == typeof(EmailOutbox);
         bool IsUserLoginLogType(Type type) => type == typeof(UserLoginLog);
-        bool IsUserConfigurationType(Type type) => type == typeof(UserConfiguration);
+        bool IsUserConfigurationType(Type type) => type == typeof(UserProperty);
         bool IsAuditType(Type type) => type == typeof(AuditLog) || type == typeof(AuditLogHistory);
 
         // Used During the First Migration of Location Data Seed. 

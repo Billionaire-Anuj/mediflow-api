@@ -27,7 +27,9 @@ public class AuditLog(
     [ForeignKey(nameof(Auditor))]
     public Guid? AuditorId { get; private set; } = auditorId;
 
+    public static AuditLog Default => new AuditLog(string.Empty, string.Empty, ChangeType.Created);
+
     public virtual User? Auditor { get; set; }
 
-    public virtual ICollection<AuditLogHistory>? AuditLogHistories { get; set; }
+    public virtual ICollection<AuditLogHistory> AuditLogHistories { get; set; } = new List<AuditLogHistory>();
 }

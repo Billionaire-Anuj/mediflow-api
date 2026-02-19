@@ -63,6 +63,12 @@ public sealed class UserConfigurations : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
+            .HasOne(x => x.Credit)
+            .WithOne(x => x.Patient)
+            .HasForeignKey<PatientCredit>(x => x.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
             .HasMany(x => x.AuditLogs)
             .WithOne(r => r.Auditor)
             .HasForeignKey(x => x.AuditorId)

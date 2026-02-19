@@ -23,11 +23,11 @@ using Mediflow.Application.Interfaces.Data;
 using Mediflow.Application.DTOs.Authentication;
 using Mediflow.Application.Interfaces.Managers;
 using Mediflow.Application.Interfaces.Services;
+using Mediflow.Domain.Common.Enum.Configurations;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 using Mediflow.Application.DTOs.Authentication.Configurations._2FA;
 using Mediflow.Application.DTOs.Authentication.Configurations.ForgotPassword;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
-using UserConfigurationEnumeration = Mediflow.Domain.Common.Enum.Configurations.UserConfiguration;
 
 namespace Mediflow.Infrastructure.Implementation.Services;
 
@@ -37,9 +37,9 @@ public class AuthenticationService(
     ILogger<AuthenticationService> logger,
     IWebHostEnvironment webHostEnvironment,
     IHttpContextAccessor httpContextAccessor,
+    IUserPropertyService userPropertyService,
     IApplicationDbContext applicationDbContext,
-    ITwoFactorTokenManager twoFactorTokenManager,
-    IUserConfigurationService userConfigurationService) : IAuthenticationService
+    ITwoFactorTokenManager twoFactorTokenManager) : IAuthenticationService
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
@@ -49,7 +49,6 @@ public class AuthenticationService(
         RemoveCookies();
 
         var user = applicationDbContext.Users
-            .Include(x => x.Role)
             .AsNoTracking()
             .FirstOrDefault(x => x.EmailAddress == login.EmailAddressOrUsername || x.Username == login.EmailAddressOrUsername);
 
@@ -123,7 +122,6 @@ public class AuthenticationService(
     public TokenDto Login2FactorAuthentication(Login2FactorAuthenticationDto login)
     {
         var user = applicationDbContext.Users
-                       .Include(x => x.Role)
                        .AsNoTracking()
                        .FirstOrDefault(x => x.EmailAddress == login.EmailAddressOrUsername || x.Username == login.EmailAddressOrUsername) 
                    ?? throw new NotFoundException("The following user has not been registered to our system. Please check your email or username.");
@@ -140,7 +138,7 @@ public class AuthenticationService(
             throw new NotFoundException("Invalid password, please try again.");
 
         var twoFactorAuthenticationConfiguration =
-            userConfigurationService.GetProperty<TwoFactorAuthenticationConfiguration>(user.Id, nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS))
+            userPropertyService.GetProperty<TwoFactorAuthenticationConfiguration>(user.Id, nameof(UserConfiguration.TWO_FACTOR_AUTHENTICATION_SETTINGS))
                      ?? throw new NotFoundException("Two-factor authentication is not properly configured for this user.");
 
         if (!twoFactorAuthenticationConfiguration.IsConfirmed)
@@ -196,7 +194,7 @@ public class AuthenticationService(
             IsVerified = false
         };
 
-        userConfigurationService.SaveProperty(user.Id, nameof(UserConfigurationEnumeration.FORGOT_PASSWORD_CONFIRMATION_OTP), forgotPasswordConfirmationConfiguration);
+        userPropertyService.SaveProperty(user.Id, nameof(UserConfiguration.FORGOT_PASSWORD_CONFIRMATION_OTP), forgotPasswordConfirmationConfiguration);
 
         var emailModel = new ForgotPasswordEmailDto()
         {
@@ -238,10 +236,10 @@ public class AuthenticationService(
         if (!user.IsActive) 
             throw new BadRequestException("The following user has not been activated yet, please confirm with the activation with the administrator before proceeding with resetting your password.");
 
-        var userConfiguration = userConfigurationService.GetProperty<ForgotPasswordConfirmationConfiguration>(user.Id, nameof(UserConfigurationEnumeration.FORGOT_PASSWORD_CONFIRMATION_OTP))
+        var userProperty = userPropertyService.GetProperty<ForgotPasswordConfirmationConfiguration>(user.Id, nameof(UserConfiguration.FORGOT_PASSWORD_CONFIRMATION_OTP))
                                 ?? throw new NotFoundException("The following user has not requested a password reset token.");
 
-        if (userConfiguration.OneTimePassword != forgotPassword.Otp)
+        if (userProperty.OneTimePassword != forgotPassword.Otp)
             throw new BadRequestException("The provided OTP is invalid, please try again.");
 
         var password = forgotPassword.Password.Hash();
@@ -250,9 +248,9 @@ public class AuthenticationService(
 
         applicationDbContext.Users.Update(user);
 
-        userConfiguration.IsVerified = true;
+        userProperty.IsVerified = true;
 
-        userConfigurationService.SaveProperty(user.Id, nameof(UserConfigurationEnumeration.FORGOT_PASSWORD_CONFIRMATION_OTP), userConfiguration);
+        userPropertyService.SaveProperty(user.Id, nameof(UserConfiguration.FORGOT_PASSWORD_CONFIRMATION_OTP), userProperty);
 
         scope.Complete();
     }
@@ -306,7 +304,7 @@ public class AuthenticationService(
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Email, user.EmailAddress),
-            new(ClaimTypes.Role, user.Role?.Name ?? string.Empty),
+            new(ClaimTypes.Role, user.Role.Name),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

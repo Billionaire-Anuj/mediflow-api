@@ -13,7 +13,7 @@ public class Permission(Guid roleId, Guid resourceId, string action) : BaseEntit
     
     public string Action { get; set; } = action;
     
-    public virtual Resource? Resource { get; set; }
-    
-    public virtual Role? Role { get; set; }
+    public virtual Resource Resource { get; set; } = Resource.Default;
+
+    public virtual Role Role { get; set; } = Role.Default;
 }

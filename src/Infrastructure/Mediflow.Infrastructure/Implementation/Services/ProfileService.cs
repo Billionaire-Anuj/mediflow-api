@@ -17,10 +17,10 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 
 public class ProfileService(
     IFileService fileService,
+    IUserPropertyService userPropertyService,
     IApplicationDbContext applicationDbContext,
     ITwoFactorTokenManager twoFactorTokenManager,
-    IApplicationUserService applicationUserService,
-    IUserConfigurationService userConfigurationService) : IProfileService
+    IApplicationUserService applicationUserService) : IProfileService
 {
     private const string UserImagesFilePath = Constants.FilePath.UserImagesFilePath;
 
@@ -29,7 +29,6 @@ public class ProfileService(
         var userId = applicationUserService.GetUserId;
 
         var user = applicationDbContext.Users
-                       .Include(x => x.Role)
                        .AsNoTracking()
                        .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The following user was not found.");
@@ -42,12 +41,11 @@ public class ProfileService(
         var userId = applicationUserService.GetUserId;
 
         var user = applicationDbContext.Users
-                       .Include(x => x.Role)
                        .AsNoTracking()
                        .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The following user was not found.");
 
-        return (user.Role ?? Role.Default).ToRoleDto();
+        return user.Role.ToRoleDto();
     }
 
     public void UpdateProfile(UpdateProfileDto profile)
@@ -157,10 +155,10 @@ public class ProfileService(
             CreatedAtUtc = DateTime.Now
         };
 
-        userConfigurationService.SaveProperty(user.Id,
+        userPropertyService.SaveProperty(user.Id,
             nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS), configuration);
 
-        const string issuer = "GVAC";
+        const string issuer = "Mediflow";
         var label = $"{issuer}:{user.EmailAddress}";
 
         var encodedIssuer = Uri.EscapeDataString(issuer);
@@ -192,7 +190,7 @@ public class ProfileService(
         if (user.Is2FactorAuthenticationEnabled)
             throw new BadRequestException("2FA is already enabled for this account.");
 
-        var configuration = userConfigurationService.GetProperty<TwoFactorAuthenticationConfiguration>(
+        var configuration = userPropertyService.GetProperty<TwoFactorAuthenticationConfiguration>(
                                 user.Id,
                                 nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS))
                             ?? throw new NotFoundException("Two-factor authentication has not been initialized.");
@@ -206,7 +204,7 @@ public class ProfileService(
 
         configuration.IsConfirmed = true;
 
-        userConfigurationService.SaveProperty(
+        userPropertyService.SaveProperty(
             user.Id,
             nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS),
             configuration);
@@ -234,7 +232,7 @@ public class ProfileService(
 
         applicationDbContext.SaveChanges();
 
-        userConfigurationService.DeleteProperty(
+        userPropertyService.DeleteProperty(
             user.Id,
             nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS));
     }
