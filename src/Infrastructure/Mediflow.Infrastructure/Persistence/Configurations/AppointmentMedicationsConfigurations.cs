@@ -50,6 +50,24 @@ public sealed class AppointmentMedicationsConfigurations : IEntityTypeConfigurat
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
+            .HasOne(x => x.CreatedUser)
+            .WithMany()
+            .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(x => x.LastModifiedUser)
+            .WithMany()
+            .HasForeignKey(x => x.LastModifiedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(x => x.DeletedUser)
+            .WithMany()
+            .HasForeignKey(x => x.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
             .HasIndex(x => x.AppointmentId);
 
         builder

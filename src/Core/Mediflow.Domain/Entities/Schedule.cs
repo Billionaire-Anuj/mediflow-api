@@ -36,5 +36,5 @@ public class Schedule(
 
     public static Schedule Default => new(Guid.Empty, DayOfWeek.Monday, TimeOnly.MinValue, TimeOnly.MinValue);
 
-    public virtual User Doctor { get; set; } = User.Default;
+    public virtual User? Doctor { get; set; }
 }

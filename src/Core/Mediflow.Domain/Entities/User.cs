@@ -39,7 +39,7 @@ public class User(
 
     public bool Is2FactorAuthenticationEnabled { get; private set; } = is2FactorAuthenticationEnabled;
 
-    public virtual Role Role { get; set; } = Role.Default;
+    public virtual Role? Role { get; set; }
 
     #region Generic Navigation Properties
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();

@@ -45,7 +45,7 @@ public class ProfileService(
                        .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The following user was not found.");
 
-        return user.Role.ToRoleDto();
+        return (user.Role ?? Role.Default).ToRoleDto();
     }
 
     public void UpdateProfile(UpdateProfileDto profile)

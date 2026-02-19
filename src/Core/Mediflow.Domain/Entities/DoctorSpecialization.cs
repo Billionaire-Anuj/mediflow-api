@@ -11,7 +11,7 @@ public class DoctorSpecialization(Guid doctorId, Guid specializationId) : Audita
     [ForeignKey(nameof(Specialization))]
     public Guid SpecializationId { get; private set; } = specializationId;
 
-    public virtual User Doctor { get; set; } = User.Default;
+    public virtual User? Doctor { get; set; }
 
-    public virtual Specialization Specialization { get; set; } = Specialization.Default;
+    public virtual Specialization? Specialization { get; set; }
 }

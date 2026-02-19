@@ -55,7 +55,7 @@ public static class InfrastructureServices
         #endregion
 
         #region Handler of Database Migration 
-        // EnsureDatabaseMigrated(services);
+        EnsureDatabaseMigrated(services);
         #endregion
 
         #region Authentication and Authorization

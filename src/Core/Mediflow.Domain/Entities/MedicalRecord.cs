@@ -22,7 +22,7 @@ public class MedicalRecord(
 
     public string Notes { get; private set; } = notes ?? string.Empty;
 
-    public virtual Appointment Appointment { get; set; } = Appointment.Default;
+    public virtual Appointment? Appointment { get; set; }
 
     public static MedicalRecord Default => new(Guid.Empty, string.Empty, string.Empty, string.Empty);
 }

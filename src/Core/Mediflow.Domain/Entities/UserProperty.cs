@@ -11,7 +11,7 @@ public class UserProperty(Guid userId, KeyValueProperty configurations) : BaseEn
 
     public KeyValueProperty Configurations { get; private set; } = configurations;
 
-    public virtual User User { get; set; } = User.Default;
+    public virtual User? User { get; set; }
 
     public void UpdateConfigurations(KeyValueProperty configurations)
     {

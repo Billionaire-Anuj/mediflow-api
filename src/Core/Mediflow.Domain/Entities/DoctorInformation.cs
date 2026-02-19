@@ -24,5 +24,5 @@ public class DoctorInformation(
 
     public decimal ConsultationFee { get; private set; } = consultationFee;
 
-    public virtual User Doctor { get; set; } = User.Default;
+    public virtual User? Doctor { get; set; }
 }

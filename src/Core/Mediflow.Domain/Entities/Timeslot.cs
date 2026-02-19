@@ -18,7 +18,7 @@ public class Timeslot(Guid scheduleId, DateOnly date, TimeOnly startTime, TimeOn
 
     public static Timeslot Default => new(Guid.Empty, DateOnly.MinValue, TimeOnly.MinValue, TimeOnly.MinValue);
 
-    public virtual Schedule Schedule { get; set; } = Schedule.Default;
+    public virtual Schedule? Schedule { get; set; }
 
-    public virtual Appointment Appointment { get; set; } = Appointment.Default;
+    public virtual Appointment? Appointment { get; set; }
 }

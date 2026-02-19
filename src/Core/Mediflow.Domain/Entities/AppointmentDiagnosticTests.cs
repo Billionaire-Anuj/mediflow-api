@@ -13,9 +13,9 @@ public class AppointmentDiagnosticTests(Guid appointmentDiagnosticsId, Guid diag
 
     public static AppointmentDiagnosticTests Default => new(Guid.Empty, Guid.Empty);
 
-    public virtual AppointmentDiagnosticTestResult AppointmentDiagnosticTestResult { get; set; } = AppointmentDiagnosticTestResult.Default;
+    public virtual AppointmentDiagnosticTestResult? AppointmentDiagnosticTestResult { get; set; }
 
-    public virtual AppointmentDiagnostics AppointmentDiagnostics { get; set; } = AppointmentDiagnostics.Default;
+    public virtual AppointmentDiagnostics? AppointmentDiagnostics { get; set; }
 
-    public virtual DiagnosticTest DiagnosticTest { get; set; } = DiagnosticTest.Default;
+    public virtual DiagnosticTest? DiagnosticTest { get; set; }
 }

@@ -25,5 +25,5 @@ public class AuditLogHistory(
 
     public string? Remarks { get; private set; } = remarks;
 
-    public virtual AuditLog AuditLog { get; set; } = AuditLog.Default;
+    public virtual AuditLog? AuditLog { get; set; }
 }

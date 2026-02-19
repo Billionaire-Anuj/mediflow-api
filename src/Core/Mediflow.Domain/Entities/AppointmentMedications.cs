@@ -24,9 +24,9 @@ public class AppointmentMedications(
 
     public static AppointmentMedications Default => new(Guid.Empty, null, string.Empty);
 
-    public virtual Appointment Appointment { get; set; } = Appointment.Default;
+    public virtual Appointment? Appointment { get; set; }
 
-    public virtual User Pharmacist { get; set; } = User.Default;
+    public virtual User? Pharmacist { get; set; }
 
     public virtual ICollection<AppointmentMedicationDrugs> Drugs { get; set; } = new List<AppointmentMedicationDrugs>();
 

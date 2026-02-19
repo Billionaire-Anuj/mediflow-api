@@ -304,7 +304,7 @@ public class AuthenticationService(
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Email, user.EmailAddress),
-            new(ClaimTypes.Role, user.Role.Name),
+            new(ClaimTypes.Role, user.Role?.Name ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

@@ -19,7 +19,7 @@ public class DiagnosticTest(Guid diagnosticTypeId, string title, string descript
 
     public static DiagnosticTest Default => new(Guid.Empty, string.Empty, string.Empty, string.Empty);
 
-    public virtual DiagnosticType DiagnosticType { get; set; } = DiagnosticType.Default;
+    public virtual DiagnosticType? DiagnosticType { get; set; }
 
     public virtual ICollection<AppointmentDiagnosticTests> AppointmentDiagnosticTests { get; set; } = new List<AppointmentDiagnosticTests>();
 }

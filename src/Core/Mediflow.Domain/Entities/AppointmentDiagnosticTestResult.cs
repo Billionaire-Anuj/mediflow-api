@@ -42,5 +42,5 @@ public class AppointmentDiagnosticTestResult(
 
     public static AppointmentDiagnosticTestResult Default => new(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
 
-    public virtual AppointmentDiagnosticTests AppointmentDiagnosticTests { get; set; } = AppointmentDiagnosticTests.Default;
+    public virtual AppointmentDiagnosticTests? AppointmentDiagnosticTests { get; set; }
 }

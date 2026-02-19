@@ -17,7 +17,7 @@ services.AddDependencyServices();
 
 services.AddInfrastructureService(configuration);
 
-// services.AddDataSeedService();
+services.AddDataSeedService();
 
 services.AddEndpointsApiExplorer();
 

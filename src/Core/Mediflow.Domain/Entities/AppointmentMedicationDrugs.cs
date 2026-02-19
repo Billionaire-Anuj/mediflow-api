@@ -39,7 +39,7 @@ public class AppointmentMedicationDrugs(
 
     public static AppointmentMedicationDrugs Default => new(Guid.Empty, Guid.Empty, string.Empty, string.Empty, 0);
 
-    public virtual AppointmentMedications AppointmentMedications { get; set; } = AppointmentMedications.Default;
+    public virtual AppointmentMedications? AppointmentMedications { get; set; }
 
-    public virtual Medicine Medicine { get; set; } = Medicine.Default;
+    public virtual Medicine? Medicine { get; set; }
 }

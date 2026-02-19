@@ -24,9 +24,9 @@ public class AppointmentDiagnostics(
 
     public static AppointmentDiagnostics Default => new(Guid.Empty, null, string.Empty);
 
-    public virtual Appointment Appointment { get; set; } = Appointment.Default;
+    public virtual Appointment? Appointment { get; set; }
 
-    public virtual User LabTechnician { get; set; } = User.Default;
+    public virtual User? LabTechnician { get; set; }
 
     public virtual ICollection<AppointmentDiagnosticTests> DiagnosticTests { get; set; } = new List<AppointmentDiagnosticTests>();
 

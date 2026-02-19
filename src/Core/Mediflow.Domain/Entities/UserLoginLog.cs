@@ -42,7 +42,7 @@ public class UserLoginLog(
 
     public DateTime? LoggedOutDate { get; private set; }
 
-    public virtual User User { get; set; } = User.Default;
+    public virtual User? User { get; set; }
 
     public void MarkLoggedOut(bool forced)
     {

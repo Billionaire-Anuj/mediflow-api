@@ -48,13 +48,13 @@ public class Appointment(
 
     public string? CancellationReason { get; private set; } = cancellationReason;
 
-    public virtual User Doctor { get; set; } = User.Default;
+    public virtual User? Doctor { get; set; }
 
-    public virtual User Patient { get; set; } = User.Default;
+    public virtual User? Patient { get; set; }
 
-    public virtual Timeslot Timeslot { get; set; } = Timeslot.Default;
+    public virtual Timeslot? Timeslot { get; set; }
 
-    public virtual MedicalRecord MedicalRecord { get; set; } = MedicalRecord.Default;
+    public virtual MedicalRecord? MedicalRecord { get; set; }
 
     public static Appointment Default => new(Guid.Empty, Guid.Empty, DateTime.MinValue, Guid.Empty, TimeOnly.MinValue, null, AppointmentStatus.Scheduled, null, null, 0m, false, false, null);
 
