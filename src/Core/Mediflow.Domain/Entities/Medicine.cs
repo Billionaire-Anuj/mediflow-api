@@ -22,4 +22,12 @@ public class Medicine(Guid medicationTypeId, string title, string description, s
     public virtual MedicationType? MedicationType { get; set; }
 
     public virtual ICollection<AppointmentMedicationDrugs> AppointmentMedicationDrugs { get; set; } = new List<AppointmentMedicationDrugs>();
+
+    public void Update(Guid medicationTypeId, string title, string description, string format)
+    {
+        if (MedicationTypeId != medicationTypeId) MedicationTypeId = medicationTypeId;
+        if (Title != title) Title = title;
+        if (Description != description) Description = description;
+        if (Format != format) Format = format;
+    }
 }
