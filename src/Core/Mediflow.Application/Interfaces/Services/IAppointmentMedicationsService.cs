@@ -1,12 +1,13 @@
 using Mediflow.Domain.Common.Enum;
 using Mediflow.Application.Common.Service;
+using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.DTOs.Appointments.Medications;
 
 namespace Mediflow.Application.Interfaces.Services;
 
 public interface IAppointmentMedicationsService : ITransientService
 {
-    List<AppointmentMedicationsDto> GetAllAppointmentMedications(
+    List<AppointmentDto> GetAllAppointmentMedications(
         int pageNumber,
         int pageSize,
         out int rowCount,
@@ -22,7 +23,7 @@ public interface IAppointmentMedicationsService : ITransientService
         DiagnosticStatus[]? statuses = null
     );
 
-    List<AppointmentMedicationsDto> GetAllAppointmentMedications(
+    List<AppointmentDto> GetAllAppointmentMedications(
         string? globalSearch = null,
         bool[]? isActive = null,
         string[]? orderBys = null,

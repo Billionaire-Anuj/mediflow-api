@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.Common.User;
 using Mediflow.Application.Interfaces.Data;
+using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Appointments.Medications;
 
@@ -13,7 +14,7 @@ public class AppointmentMedicationsService(
     IApplicationDbContext applicationDbContext,
     IApplicationUserService applicationUserService) : IAppointmentMedicationsService
 {
-    public List<AppointmentMedicationsDto> GetAllAppointmentMedications(
+    public List<AppointmentDto> GetAllAppointmentMedications(
         int pageNumber,
         int pageSize,
         out int rowCount,
@@ -29,14 +30,13 @@ public class AppointmentMedicationsService(
         DiagnosticStatus[]? statuses = null)
     {
         var statusIdentifiers = statuses != null ? new HashSet<DiagnosticStatus>(statuses) : null;
-        var normalizedGlobalSearch = globalSearch?.Trim().ToLower();
 
-        var medicationsModels = applicationDbContext.AppointmentMedications
+        var appointmentMedicationsModel = applicationDbContext.AppointmentMedications
             .Where(x =>
-                (string.IsNullOrEmpty(normalizedGlobalSearch)
-                    || x.Notes.ToLower().Contains(normalizedGlobalSearch)
-                    || (x.Appointment != null && x.Appointment.Doctor != null && x.Appointment.Doctor.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Appointment != null && x.Appointment.Patient != null && x.Appointment.Patient.Name.ToLower().Contains(normalizedGlobalSearch))) &&
+                (string.IsNullOrEmpty(globalSearch)
+                    || x.Notes.ToLower().Contains(globalSearch.Trim().ToLower())
+                    || (x.Appointment != null && x.Appointment.Doctor != null && x.Appointment.Doctor.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Appointment != null && x.Appointment.Patient != null && x.Appointment.Patient.Name.ToLower().Contains(globalSearch.Trim().ToLower()))) &&
                 (isActive == null || isActive.Contains(x.IsActive)) &&
                 (appointmentId == null || x.AppointmentId == appointmentId) &&
                 (doctorId == null || (x.Appointment != null && x.Appointment.DoctorId == doctorId)) &&
@@ -44,30 +44,59 @@ public class AppointmentMedicationsService(
                 (pharmacistId == null || x.PharmacistId == pharmacistId) &&
                 (statusIdentifiers == null || statusIdentifiers.Contains(x.Status)) &&
                 (!startDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date >= startDate.Value)) &&
-                (!endDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date <= endDate.Value)))
-            .Include(x => x.Pharmacist)
+                (!endDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date <= endDate.Value)));
+
+        var appointmentIds = appointmentMedicationsModel
+            .Select(x => x.AppointmentId)
+            .Distinct();
+
+        var appointmentModels = applicationDbContext.Appointments
+            .Include(x => x.Doctor)
                 .ThenInclude(x => x!.Role)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Doctor)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Patient)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Timeslot)
-            .Include(x => x.Drugs)
-                .ThenInclude(x => x.Medicine)
-                    .ThenInclude(x => x!.MedicationType)
-            .OrderBy(x => orderBys);
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.DoctorProfile)
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.Schedules)
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.DoctorSpecializations)
+                .ThenInclude(x => x.Specialization)
+            .Include(x => x.Patient)
+                .ThenInclude(x => x!.Role)
+            .Include(x => x.Patient)
+                .ThenInclude(x => x!.Credit)
+            .Include(x => x.Timeslot)
+            .Include(x => x.MedicalRecord)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.LabTechnician)
+                    .ThenInclude(x => x!.Role)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.DiagnosticTests)
+                    .ThenInclude(x => x.DiagnosticTest)
+                        .ThenInclude(x => x!.DiagnosticType)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.DiagnosticTests)
+                    .ThenInclude(x => x.AppointmentDiagnosticTestResult)
+            .Include(x => x.AppointmentMedications)
+                .ThenInclude(x => x.Pharmacist)
+                    .ThenInclude(x => x!.Role)
+            .Include(x => x.AppointmentMedications)
+                .ThenInclude(x => x.Drugs)
+                    .ThenInclude(x => x.Medicine)
+                        .ThenInclude(x => x!.MedicationType)
+            .AsNoTracking()
+            .Where(x => appointmentIds.Contains(x.Id));
 
-        rowCount = medicationsModels.Count();
+        rowCount = appointmentModels.Count();
 
-        return medicationsModels
+        var appointments = appointmentModels
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => x.ToAppointmentMedicationsDto())
             .ToList();
+
+        return appointments.Select(x => x.ToAppointmentDto()).ToList();
     }
 
-    public List<AppointmentMedicationsDto> GetAllAppointmentMedications(
+    public List<AppointmentDto> GetAllAppointmentMedications(
         string? globalSearch = null,
         bool[]? isActive = null,
         string[]? orderBys = null,
@@ -79,15 +108,14 @@ public class AppointmentMedicationsService(
         DateOnly? endDate = null,
         DiagnosticStatus[]? statuses = null)
     {
-        var statusIdentifiers = statuses != null ? new HashSet<DiagnosticStatus>(statuses) : null;
-        var normalizedGlobalSearch = globalSearch?.Trim().ToLower();
+                var statusIdentifiers = statuses != null ? new HashSet<DiagnosticStatus>(statuses) : null;
 
-        var medicationsModels = applicationDbContext.AppointmentMedications
+        var appointmentMedicationsModel = applicationDbContext.AppointmentMedications
             .Where(x =>
-                (string.IsNullOrEmpty(normalizedGlobalSearch)
-                    || x.Notes.ToLower().Contains(normalizedGlobalSearch)
-                    || (x.Appointment != null && x.Appointment.Doctor != null && x.Appointment.Doctor.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Appointment != null && x.Appointment.Patient != null && x.Appointment.Patient.Name.ToLower().Contains(normalizedGlobalSearch))) &&
+                (string.IsNullOrEmpty(globalSearch)
+                    || x.Notes.ToLower().Contains(globalSearch.Trim().ToLower())
+                    || (x.Appointment != null && x.Appointment.Doctor != null && x.Appointment.Doctor.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Appointment != null && x.Appointment.Patient != null && x.Appointment.Patient.Name.ToLower().Contains(globalSearch.Trim().ToLower()))) &&
                 (isActive == null || isActive.Contains(x.IsActive)) &&
                 (appointmentId == null || x.AppointmentId == appointmentId) &&
                 (doctorId == null || (x.Appointment != null && x.Appointment.DoctorId == doctorId)) &&
@@ -95,21 +123,49 @@ public class AppointmentMedicationsService(
                 (pharmacistId == null || x.PharmacistId == pharmacistId) &&
                 (statusIdentifiers == null || statusIdentifiers.Contains(x.Status)) &&
                 (!startDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date >= startDate.Value)) &&
-                (!endDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date <= endDate.Value)))
-            .Include(x => x.Pharmacist)
-                .ThenInclude(x => x!.Role)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Doctor)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Patient)
-            .Include(x => x.Appointment)
-                .ThenInclude(x => x!.Timeslot)
-            .Include(x => x.Drugs)
-                .ThenInclude(x => x.Medicine)
-                    .ThenInclude(x => x!.MedicationType)
-            .OrderBy(x => orderBys);
+                (!endDate.HasValue || (x.Appointment != null && x.Appointment.Timeslot != null && x.Appointment.Timeslot.Date <= endDate.Value)));
 
-        return medicationsModels.Select(x => x.ToAppointmentMedicationsDto()).ToList();
+        var appointmentIds = appointmentMedicationsModel
+            .Select(x => x.AppointmentId)
+            .Distinct();
+
+        var appointmentModels = applicationDbContext.Appointments
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.Role)
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.DoctorProfile)
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.Schedules)
+            .Include(x => x.Doctor)
+                .ThenInclude(x => x!.DoctorSpecializations)
+                .ThenInclude(x => x.Specialization)
+            .Include(x => x.Patient)
+                .ThenInclude(x => x!.Role)
+            .Include(x => x.Patient)
+                .ThenInclude(x => x!.Credit)
+            .Include(x => x.Timeslot)
+            .Include(x => x.MedicalRecord)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.LabTechnician)
+                    .ThenInclude(x => x!.Role)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.DiagnosticTests)
+                    .ThenInclude(x => x.DiagnosticTest)
+                        .ThenInclude(x => x!.DiagnosticType)
+            .Include(x => x.AppointmentDiagnostics)
+                .ThenInclude(x => x.DiagnosticTests)
+                    .ThenInclude(x => x.AppointmentDiagnosticTestResult)
+            .Include(x => x.AppointmentMedications)
+                .ThenInclude(x => x.Pharmacist)
+                    .ThenInclude(x => x!.Role)
+            .Include(x => x.AppointmentMedications)
+                .ThenInclude(x => x.Drugs)
+                    .ThenInclude(x => x.Medicine)
+                        .ThenInclude(x => x!.MedicationType)
+            .AsNoTracking()
+            .Where(x => appointmentIds.Contains(x.Id));
+
+        return appointmentModels.Select(x => x.ToAppointmentDto()).ToList();
     }
 
     public AppointmentMedicationsDto GetAppointmentMedicationsById(Guid appointmentMedicationsId)

@@ -28,16 +28,14 @@ public class AppointmentService(
         AppointmentStatus[]? statuses = null)
     {
         var statusIdentifiers = statuses != null ? new HashSet<AppointmentStatus>(statuses) : null;
-        var normalizedGlobalSearch = globalSearch?.Trim().ToLower();
-        var normalizedNotes = globalSearch?.Trim().ToLower();
 
         var appointmentModels = applicationDbContext.Appointments
             .Where(x =>
-                (string.IsNullOrEmpty(normalizedGlobalSearch)
-                    || (x.Doctor != null && x.Doctor.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Patient != null && x.Patient.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Notes != null && x.Notes.ToLower().Contains(normalizedNotes ?? string.Empty))
-                    || (x.Symptoms != null && x.Symptoms.ToLower().Contains(normalizedNotes ?? string.Empty))) &&
+                (string.IsNullOrEmpty(globalSearch)
+                    || (x.Doctor != null && x.Doctor.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Patient != null && x.Patient.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Notes != null && x.Notes.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Symptoms != null && x.Symptoms.ToLower().Contains(globalSearch.Trim().ToLower()))) &&
                 (isActive == null || isActive.Contains(x.IsActive)) &&
                 (doctorId == null || x.DoctorId == doctorId) &&
                 (patientId == null || x.PatientId == patientId) &&
@@ -98,16 +96,14 @@ public class AppointmentService(
         AppointmentStatus[]? statuses = null)
     {
         var statusIdentifiers = statuses != null ? new HashSet<AppointmentStatus>(statuses) : null;
-        var normalizedGlobalSearch = globalSearch?.Trim().ToLower();
-        var normalizedNotes = globalSearch?.Trim().ToLower();
-
+        
         var appointmentModels = applicationDbContext.Appointments
             .Where(x =>
-                (string.IsNullOrEmpty(normalizedGlobalSearch)
-                    || (x.Doctor != null && x.Doctor.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Patient != null && x.Patient.Name.ToLower().Contains(normalizedGlobalSearch))
-                    || (x.Notes != null && x.Notes.ToLower().Contains(normalizedNotes ?? string.Empty))
-                    || (x.Symptoms != null && x.Symptoms.ToLower().Contains(normalizedNotes ?? string.Empty))) &&
+                (string.IsNullOrEmpty(globalSearch)
+                    || (x.Doctor != null && x.Doctor.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Patient != null && x.Patient.Name.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Notes != null && x.Notes.ToLower().Contains(globalSearch.Trim().ToLower()))
+                    || (x.Symptoms != null && x.Symptoms.ToLower().Contains(globalSearch.Trim().ToLower()))) &&
                 (isActive == null || isActive.Contains(x.IsActive)) &&
                 (doctorId == null || x.DoctorId == doctorId) &&
                 (patientId == null || x.PatientId == patientId) &&

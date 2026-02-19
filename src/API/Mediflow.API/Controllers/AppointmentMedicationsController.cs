@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mediflow.Domain.Common.Enum;
 using Mediflow.API.Controllers.Base;
 using Mediflow.Application.Common.Response;
+using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Appointments.Medications;
 
@@ -11,8 +12,8 @@ namespace Mediflow.API.Controllers;
 public class AppointmentMedicationsController(IAppointmentMedicationsService appointmentMedicationsService) : BaseController<AppointmentMedicationsController>
 {
     [HttpGet]
-    [Documentation("GetAllAppointmentMedications", "Retrieve all paginated appointment medications in the system.")]
-    public CollectionDto<AppointmentMedicationsDto> GetAllAppointmentMedications(
+    [Documentation("GetAllAppointmentMedications", "Retrieve all paginated appointment medications with appointment details.")]
+    public CollectionDto<AppointmentDto> GetAllAppointmentMedications(
         [FromQuery] PaginationQueryDto paginationQuery,
         [FromQuery] SearchAndActiveFlagQueryDto searchAndActiveFlagQuery,
         [FromQuery] OrderQueryDto orderQueryDto,
@@ -39,7 +40,7 @@ public class AppointmentMedicationsController(IAppointmentMedicationsService app
             endDate,
             statuses);
 
-        return new CollectionDto<AppointmentMedicationsDto>(
+        return new CollectionDto<AppointmentDto>(
             (int)HttpStatusCode.OK,
             "The appointment medications have been successfully retrieved.",
             result,
@@ -49,8 +50,8 @@ public class AppointmentMedicationsController(IAppointmentMedicationsService app
     }
 
     [HttpGet("list")]
-    [Documentation("GetAllAppointmentMedicationsList", "Retrieve all non-paginated appointment medications in the system.")]
-    public ResponseDto<List<AppointmentMedicationsDto>> GetAllAppointmentMedications(
+    [Documentation("GetAllAppointmentMedicationsList", "Retrieve all non-paginated appointment medications with appointment details.")]
+    public ResponseDto<List<AppointmentDto>> GetAllAppointmentMedications(
         [FromQuery] SearchAndActiveFlagQueryDto searchAndActiveFlagQuery,
         [FromQuery] OrderQueryDto orderQueryDto,
         [FromQuery] Guid? appointmentId = null,
@@ -73,7 +74,7 @@ public class AppointmentMedicationsController(IAppointmentMedicationsService app
             endDate,
             statuses);
 
-        return new ResponseDto<List<AppointmentMedicationsDto>>(
+        return new ResponseDto<List<AppointmentDto>>(
             (int)HttpStatusCode.OK,
             "The appointment medications have been successfully retrieved.",
             result);

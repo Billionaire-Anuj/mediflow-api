@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Mediflow.Domain.Common.Enum;
 using Mediflow.API.Controllers.Base;
 using Mediflow.Application.Common.Response;
+using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Appointments.Diagnostics;
 
@@ -11,8 +12,8 @@ namespace Mediflow.API.Controllers;
 public class AppointmentDiagnosticsController(IAppointmentDiagnosticsService appointmentDiagnosticsService) : BaseController<AppointmentDiagnosticsController>
 {
     [HttpGet]
-    [Documentation("GetAllAppointmentDiagnostics", "Retrieve all paginated appointment diagnostics in the system.")]
-    public CollectionDto<AppointmentDiagnosticsDto> GetAllAppointmentDiagnostics(
+    [Documentation("GetAllAppointmentDiagnostics", "Retrieve all paginated appointment diagnostics with appointment details.")]
+    public CollectionDto<AppointmentDto> GetAllAppointmentDiagnostics(
         [FromQuery] PaginationQueryDto paginationQuery,
         [FromQuery] SearchAndActiveFlagQueryDto searchAndActiveFlagQuery,
         [FromQuery] OrderQueryDto orderQueryDto,
@@ -39,7 +40,7 @@ public class AppointmentDiagnosticsController(IAppointmentDiagnosticsService app
             endDate,
             statuses);
 
-        return new CollectionDto<AppointmentDiagnosticsDto>(
+        return new CollectionDto<AppointmentDto>(
             (int)HttpStatusCode.OK,
             "The appointment diagnostics have been successfully retrieved.",
             result,
@@ -49,8 +50,8 @@ public class AppointmentDiagnosticsController(IAppointmentDiagnosticsService app
     }
 
     [HttpGet("list")]
-    [Documentation("GetAllAppointmentDiagnosticsList", "Retrieve all non-paginated appointment diagnostics in the system.")]
-    public ResponseDto<List<AppointmentDiagnosticsDto>> GetAllAppointmentDiagnostics(
+    [Documentation("GetAllAppointmentDiagnosticsList", "Retrieve all non-paginated appointment diagnostics with appointment details.")]
+    public ResponseDto<List<AppointmentDto>> GetAllAppointmentDiagnostics(
         [FromQuery] SearchAndActiveFlagQueryDto searchAndActiveFlagQuery,
         [FromQuery] OrderQueryDto orderQueryDto,
         [FromQuery] Guid? appointmentId = null,
@@ -73,7 +74,7 @@ public class AppointmentDiagnosticsController(IAppointmentDiagnosticsService app
             endDate,
             statuses);
 
-        return new ResponseDto<List<AppointmentDiagnosticsDto>>(
+        return new ResponseDto<List<AppointmentDto>>(
             (int)HttpStatusCode.OK,
             "The appointment diagnostics have been successfully retrieved.",
             result);
