@@ -1,7 +1,7 @@
-using Mediflow.Domain.Entities;
 using Newtonsoft.Json;
-using Mediflow.Domain.Common.Property;
+using Mediflow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Mediflow.Domain.Common.Property;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Mediflow.Infrastructure.Persistence.Configurations;

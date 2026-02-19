@@ -29,8 +29,7 @@ public class RoleService(IApplicationDbContext applicationDbContext) : IRoleServ
                 (name == null || x.Name.ToLower().Contains(name.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         rowCount = roleModels.Count();
 
@@ -58,8 +57,7 @@ public class RoleService(IApplicationDbContext applicationDbContext) : IRoleServ
                 (name == null || x.Name.ToLower().Contains(name.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         return roleModels.Select(x => x.ToRoleDto()).ToList();
     }
@@ -84,8 +82,7 @@ public class RoleService(IApplicationDbContext applicationDbContext) : IRoleServ
                 (name == null || x.Name.ToLower().Contains(name.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
         
         rowCount = roleModels.Count();
 
@@ -113,8 +110,7 @@ public class RoleService(IApplicationDbContext applicationDbContext) : IRoleServ
                 (name == null || x.Name.ToLower().Contains(name.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         return roleModels.Select(x => x.ToRoleDto()).ToList();
     }

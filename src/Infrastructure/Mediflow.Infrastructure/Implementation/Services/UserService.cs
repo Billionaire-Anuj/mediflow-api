@@ -53,9 +53,8 @@ public class UserService(
                 (address == null || (x.Address != null && x.Address.ToLower().Contains(address.ToLower()))) &&
                 (phoneNumber == null || x.PhoneNumber.ToLower().Contains(phoneNumber.ToLower())) &&
                 (roleIdentifiers == null || roleIdentifiers.Contains(x.RoleId)))
-            .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .Include(x => x.Role)
+            .OrderBy(x => orderBys);
 
         rowCount = userModels.Count();
 
@@ -94,9 +93,8 @@ public class UserService(
                 (address == null || (x.Address != null && x.Address.ToLower().Contains(address.ToLower()))) &&
                 (phoneNumber == null || x.PhoneNumber.ToLower().Contains(phoneNumber.ToLower())) &&
                 (roleIdentifiers == null || roleIdentifiers.Contains(x.RoleId)))
-            .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .Include(x => x.Role)
+            .OrderBy(x => orderBys);
 
         return userModels.Select(x => x.ToUserDto()).ToList();
     }
@@ -120,7 +118,6 @@ public class UserService(
         }
 
         var role = applicationDbContext.Roles
-                   .AsNoTracking()
                    .FirstOrDefault(x => x.Id == user.RoleId)
                    ?? throw new NotFoundException("The respective role with the specified identifier was not found.");
 
@@ -171,7 +168,6 @@ public class UserService(
         if (userModel.RoleId != user.RoleId)
         {
             var role = applicationDbContext.Roles
-                       .AsNoTracking()
                        .FirstOrDefault(x => x.Id == user.RoleId) 
                        ?? throw new NotFoundException("The respective role with the specified identifier was not found.");
 
@@ -222,7 +218,6 @@ public class UserService(
         var applicationUserIdentifier = applicationUserService.GetUserId;
 
         var applicationUser = applicationDbContext.Users
-                              .AsNoTracking()
                               .FirstOrDefault(x => x.Id == applicationUserIdentifier)
                               ?? throw new NotFoundException($"User with identifier '{applicationUserIdentifier}' was not found.");
 

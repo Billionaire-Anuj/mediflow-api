@@ -17,9 +17,9 @@ public class ResourcesSeeder(ILogger<ResourcesSeeder> logger, IApplicationDbCont
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(x => x.FieldType == typeof(string))
             .Select(x => x.GetValue(null)!.ToString()!)
-            .AsQueryable();
+            .ToList();
 
-        var resourceModels = applicationDbContext.Resources.AsQueryable();
+        var resourceModels = applicationDbContext.Resources;
 
         foreach (var resource in resources)
         {
@@ -40,7 +40,7 @@ public class ResourcesSeeder(ILogger<ResourcesSeeder> logger, IApplicationDbCont
         {
             if (resources.Contains(resource.Name)) continue;
 
-            var permissions = applicationDbContext.Permissions.Where(x => x.ResourceId == resource.Id).AsQueryable();
+            var permissions = applicationDbContext.Permissions.Where(x => x.ResourceId == resource.Id);
 
             if (permissions.Any())
             {

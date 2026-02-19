@@ -55,9 +55,8 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (maximumActionDate == null || DateOnly.FromDateTime(x.ActionDate) <= maximumActionDate) &&
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
-            .OrderBy(x => x.Id)
-            .AsNoTracking()
-            .AsQueryable();
+            .Include(x => x.User)
+            .OrderBy(x => x.Id);
 
         rowCount = userLoginLogModels.Count();
 
@@ -111,9 +110,8 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (maximumActionDate == null || DateOnly.FromDateTime(x.ActionDate) <= maximumActionDate) &&
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
-            .OrderBy(x => x.Id)
-            .AsNoTracking()
-            .AsQueryable();
+            .Include(x => x.User)
+            .OrderBy(x => x.Id);
 
         return userLoginLogModels.Select(x => x.ToUserLoginLogDto()).ToList();
     }
@@ -138,7 +136,6 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
         DateOnly? maximumLoggedOutDate = null)
     {
         var user = applicationDbContext.Users
-            .AsNoTracking()
             .FirstOrDefault(x => x.Id == userId)
             ?? throw new NotFoundException($"User with identifier '{userId}' was not found.");
 
@@ -147,7 +144,7 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
         var isActiveSessionIdentifiers = isActiveSession != null ? new HashSet<bool>(isActiveSession) : null;
 
         var userLoginLogModels = applicationDbContext.UserLoginLogs
-            .Where(x => 
+            .Where(x =>
                 x.UserId == user.Id &&
                 (string.IsNullOrEmpty(globalSearch)
                     || x.EmailAddressOrUsername.ToLower().Contains(globalSearch.ToLower())
@@ -168,9 +165,9 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (maximumActionDate == null || DateOnly.FromDateTime(x.ActionDate) <= maximumActionDate) &&
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
+            .Include(x => x.User)
             .OrderBy(x => x.Id)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         rowCount = userLoginLogModels.Count();
 
@@ -228,9 +225,8 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
                 (maximumActionDate == null || DateOnly.FromDateTime(x.ActionDate) <= maximumActionDate) &&
                 (minimumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) >= minimumLoggedOutDate)) &&
                 (maximumLoggedOutDate == null || (x.LoggedOutDate != null && DateOnly.FromDateTime(x.LoggedOutDate.Value) <= minimumLoggedOutDate)))
-            .OrderBy(x => x.Id)
-            .AsNoTracking()
-            .AsQueryable();
+            .Include(x => x.User)
+            .OrderBy(x => x.Id);
 
         return userLoginLogModels.Select(x => x.ToUserLoginLogDto()).ToList();
     }
@@ -238,7 +234,7 @@ public class UserLoginLogService(IApplicationDbContext applicationDbContext) : I
     public UserLoginLogDto GetUserLoginLogById(Guid userLoginLogId)
     {
         var userLoginLogModel = applicationDbContext.UserLoginLogs
-                                    .AsNoTracking()
+                                    .Include(x => x.User)
                                     .FirstOrDefault(x => x.Id == userLoginLogId)
                                 ?? throw new NotFoundException($"User login log with identifier '{userLoginLogId}' was not found.");
 

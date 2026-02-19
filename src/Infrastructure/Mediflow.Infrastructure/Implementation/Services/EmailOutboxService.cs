@@ -94,8 +94,7 @@ public class EmailOutboxService(
                 && (minimumSentDate == null || (x.SentDate != null && x.SentDate >= minimumSentDate))
                 && (maximumSentDate == null || (x.SentDate != null && x.SentDate <= maximumSentDate)))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         rowCount = emailOutboxModels.Count();
 
@@ -163,8 +162,7 @@ public class EmailOutboxService(
                 && (minimumSentDate == null || (x.SentDate != null && x.SentDate >= minimumSentDate))
                 && (maximumSentDate == null || (x.SentDate != null && x.SentDate <= maximumSentDate)))
             .OrderBy(x => orderBys)
-            .AsNoTracking()
-            .AsQueryable();
+            .AsNoTracking();
 
         return emailOutboxModels.Select(x => x.ToEmailOutboxDto()).ToList();
     }
@@ -209,8 +207,7 @@ public class EmailOutboxService(
 
         var emailOutboxes = applicationDbContext.EmailOutboxes
             .Where(x => x.Status == OutboxStatus.Pending)
-            .OrderBy(x => x.ScheduledDate)
-            .AsQueryable();
+            .OrderBy(x => x.ScheduledDate);
 
         foreach (var emailOutbox in emailOutboxes)
         {

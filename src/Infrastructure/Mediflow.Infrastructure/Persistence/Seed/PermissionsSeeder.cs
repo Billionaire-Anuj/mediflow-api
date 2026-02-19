@@ -1,7 +1,6 @@
 using Mediflow.Domain.Common;
 using Mediflow.Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.Interfaces.Data;
 using Mediflow.Application.Interfaces.Seed;
@@ -18,11 +17,10 @@ public class PermissionsSeeder(ILogger<PermissionsSeeder> logger, IApplicationDb
         // We do not need to assign permissions to other roles as it will be manually adjusted via the SA.
         // We also do not need to seed permissions for the tenant administrator role as the permission flag check will bypass it.
         var superAdminRole = applicationDbContext.Roles
-                                .AsNoTracking()
                                 .FirstOrDefault(x => x.Id == Guid.Parse(Constants.Roles.SuperAdmin.Id)) 
                                 ?? throw new NotFoundException("Super admin role could not be found.");
 
-        var resources = applicationDbContext.Resources.AsQueryable();
+        var resources = applicationDbContext.Resources;
 
         if (resources.Any())
         {

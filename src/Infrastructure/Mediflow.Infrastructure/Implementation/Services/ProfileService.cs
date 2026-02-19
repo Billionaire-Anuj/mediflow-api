@@ -30,6 +30,7 @@ public class ProfileService(
 
         var user = applicationDbContext.Users
                        .AsNoTracking()
+                       .Include(x => x.Role)
                        .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The following user was not found.");
 
@@ -42,6 +43,7 @@ public class ProfileService(
 
         var user = applicationDbContext.Users
                        .AsNoTracking()
+                       .Include(x => x.Role)
                        .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The following user was not found.");
 

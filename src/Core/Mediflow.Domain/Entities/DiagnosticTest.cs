@@ -22,4 +22,12 @@ public class DiagnosticTest(Guid diagnosticTypeId, string title, string descript
     public virtual DiagnosticType? DiagnosticType { get; set; }
 
     public virtual ICollection<AppointmentDiagnosticTests> AppointmentDiagnosticTests { get; set; } = new List<AppointmentDiagnosticTests>();
+
+    public void Update(Guid diagnosticTypeId, string title, string description, string specimen)
+    {
+        if (DiagnosticTypeId != diagnosticTypeId) DiagnosticTypeId = diagnosticTypeId;
+        if (Title != title) Title = title;
+        if (Description != description) Description = description;
+        if (Specimen != specimen) Specimen = specimen;
+    }
 }

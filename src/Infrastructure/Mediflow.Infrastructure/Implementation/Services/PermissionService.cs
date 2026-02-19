@@ -80,13 +80,9 @@ public class PermissionService(IApplicationDbContext applicationDbContext, IAppl
                    .FirstOrDefault(x => x.Id == roleId)
                    ?? throw new NotFoundException("The following role could not be found.");
         
-        var permissions = applicationDbContext.Permissions
-            .AsNoTracking()
-            .Where(x => x.RoleId == role.Id).AsQueryable();
+        var permissions = applicationDbContext.Permissions.AsNoTracking().Where(x => x.RoleId == role.Id);
         
-        var resources = applicationDbContext.Resources
-            .AsNoTracking()
-            .AsQueryable(); 
+        var resources = applicationDbContext.Resources.AsNoTracking(); 
         
         var assignedPermissions = new List<AssignedPermissionsDto>(); 
 
@@ -127,7 +123,7 @@ public class PermissionService(IApplicationDbContext applicationDbContext, IAppl
                    .FirstOrDefault(x => x.Id == grantPermission.RoleId) 
                    ?? throw new NotFoundException("The role could not be found.");
         
-        var permissions = applicationDbContext.Permissions.Where(x => x.RoleId == grantPermission.RoleId).AsQueryable();
+        var permissions = applicationDbContext.Permissions.Where(x => x.RoleId == grantPermission.RoleId);
 
         if (permissions.Any())
         {

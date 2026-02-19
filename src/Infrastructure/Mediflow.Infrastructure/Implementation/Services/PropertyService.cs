@@ -47,7 +47,7 @@ public class PropertyService(IApplicationDbContext applicationDbContext) : IProp
 
     public List<KeyValueProperty> GetAllProperties()
     {
-        var properties = applicationDbContext.Properties.AsQueryable();
+        var properties = applicationDbContext.Properties;
 
         return properties.Select(x => x.Setting).ToList();
     }

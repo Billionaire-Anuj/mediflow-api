@@ -24,12 +24,10 @@ public class AdministratorsSeeder(
     public void Seed()
     {
         var superAdminRole = applicationDbContext.Roles
-                                 .AsNoTracking()
                                  .FirstOrDefault(x => x.Id == Guid.Parse(Constants.Roles.SuperAdmin.Id))
                              ?? throw new NotFoundException("Super admin role could not be found.");
 
         var tenantAdministratorRole = applicationDbContext.Roles
-                                      .AsNoTracking()
                                       .FirstOrDefault(x => x.Id == Guid.Parse(Constants.Roles.TenantAdministrator.Id))
                                       ?? throw new NotFoundException("Tenant administrator role could not be found.");
 

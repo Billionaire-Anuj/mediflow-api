@@ -10,11 +10,9 @@ public static class DatabaseHelper
         return dbProvider.ToLowerInvariant() switch
         {
             Constants.DbProviderKeys.Npgsql => builder
-                .UseNpgsql(connectionString, e => e.MigrationsAssembly("Mediflow.Migrators.PostgreSQL"))
-                .UseLazyLoadingProxies(),
+                .UseNpgsql(connectionString, e => e.MigrationsAssembly("Mediflow.Migrators.PostgreSQL")),
             Constants.DbProviderKeys.SqlServer => builder
-                .UseSqlServer(connectionString, e => e.MigrationsAssembly("Mediflow.Migrators.SQLServer"))
-                .UseLazyLoadingProxies(),
+                .UseSqlServer(connectionString, e => e.MigrationsAssembly("Mediflow.Migrators.SQLServer")),
             _ => throw new InvalidOperationException($"DB Provider {dbProvider} is not supported."),
         };
     }

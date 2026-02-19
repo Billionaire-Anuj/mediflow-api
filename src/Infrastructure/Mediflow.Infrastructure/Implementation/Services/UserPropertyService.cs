@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Mediflow.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Mediflow.Domain.Common.Property;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.Interfaces.Data;
@@ -14,7 +13,6 @@ public class UserPropertyService(IApplicationDbContext applicationDbContext) : I
     public T? GetProperty<T>(Guid userId, string key)
     {
         var user = applicationDbContext.Users
-            .AsNoTracking()
             .FirstOrDefault(x => x.Id == userId)
             ?? throw new NotFoundException("The user could not be found.");
 
@@ -56,11 +54,10 @@ public class UserPropertyService(IApplicationDbContext applicationDbContext) : I
     public List<KeyValueProperty> GetAllProperties(Guid userId)
     {
         var user = applicationDbContext.Users
-                   .AsNoTracking()
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
-        var properties = applicationDbContext.UserProperties.Where(x => x.UserId == user.Id).AsQueryable();
+        var properties = applicationDbContext.UserProperties.Where(x => x.UserId == user.Id);
 
         return properties.Select(x => x.Configurations).ToList();
     }
@@ -68,7 +65,6 @@ public class UserPropertyService(IApplicationDbContext applicationDbContext) : I
     public void SaveProperty(Guid userId, string key, object value)
     {
         var user = applicationDbContext.Users
-                   .AsNoTracking()
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
@@ -100,7 +96,6 @@ public class UserPropertyService(IApplicationDbContext applicationDbContext) : I
     public void DeleteProperty(Guid userId, string key)
     {
         var user = applicationDbContext.Users
-                   .AsNoTracking()
                    .FirstOrDefault(x => x.Id == userId)
                    ?? throw new NotFoundException("The user could not be found.");
 
