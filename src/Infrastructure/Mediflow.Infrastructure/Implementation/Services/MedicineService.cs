@@ -104,7 +104,7 @@ public class MedicineService(IApplicationDbContext applicationDbContext) : IMedi
     public void UpdateMedicine(Guid medicineId, UpdateMedicineDto medicine)
     {
         if (medicineId != medicine.Id)
-            throw new BadRequestException($"Medicine with the identifier of {medicineId} could not be found.");
+            throw new BadRequestException("Route identifier does not match payload identifier.");
 
         var medicineModel = applicationDbContext.Medicines
             .FirstOrDefault(x => x.Id == medicineId)

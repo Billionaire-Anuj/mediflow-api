@@ -39,13 +39,13 @@ public interface IApplicationDbContext : IScopedService
     #endregion
 
     #region Doctor Information
-    DbSet<DoctorInformation> DoctorInformation { get; set; }
+    DbSet<DoctorProfile> DoctorProfiles { get; set; }
 
     DbSet<DoctorSpecialization> DoctorSpecializations { get; set; }
 
     DbSet<Schedule> Schedules { get; set; }
 
-    DbSet<Timeslot> Timeslot { get; set; }
+    DbSet<Timeslot> Timeslots { get; set; }
     #endregion
 
     #region Patient Information

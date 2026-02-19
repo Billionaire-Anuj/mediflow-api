@@ -149,9 +149,7 @@ public class UserService(
     public void UpdateUser(Guid userId, UpdateUserDto user)
     {
         if (userId != user.Id)
-        {
             throw new BadRequestException("Route identifier does not match payload identifier.");
-        }
 
         var userModel = applicationDbContext.Users.FirstOrDefault(x => x.Id == user.Id)
                             ?? throw new NotFoundException($"User with identifier '{userId}' was not found.");

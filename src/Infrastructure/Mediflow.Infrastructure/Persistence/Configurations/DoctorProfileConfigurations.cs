@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Mediflow.Infrastructure.Persistence.Configurations;
 
-public sealed class DoctorInformationConfigurations : IEntityTypeConfiguration<DoctorInformation>
+public sealed class DoctorProfileConfigurations : IEntityTypeConfiguration<DoctorProfile>
 {
-    public void Configure(EntityTypeBuilder<DoctorInformation> builder)
+    public void Configure(EntityTypeBuilder<DoctorProfile> builder)
     {
         builder
             .Property(x => x.DoctorId)
@@ -39,8 +39,8 @@ public sealed class DoctorInformationConfigurations : IEntityTypeConfiguration<D
 
         builder
             .HasOne(x => x.Doctor)
-            .WithOne(x => x.DoctorInformation)
-            .HasForeignKey<DoctorInformation>(x => x.DoctorId)
+            .WithOne(x => x.DoctorProfile)
+            .HasForeignKey<DoctorProfile>(x => x.DoctorId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder

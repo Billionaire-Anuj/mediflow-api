@@ -51,13 +51,13 @@ public class ApplicationDbContext(
     #endregion
 
     #region Doctor Information
-    public DbSet<DoctorInformation> DoctorInformation { get; set; }
+    public DbSet<DoctorProfile> DoctorProfiles { get; set; }
 
     public DbSet<DoctorSpecialization> DoctorSpecializations { get; set; }
 
     public DbSet<Schedule> Schedules { get; set; }
 
-    public DbSet<Timeslot> Timeslot { get; set; }
+    public DbSet<Timeslot> Timeslots { get; set; }
     #endregion
 
     #region Patient Information

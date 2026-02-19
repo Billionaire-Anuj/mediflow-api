@@ -104,7 +104,7 @@ public class DiagnosticTestService(IApplicationDbContext applicationDbContext) :
     public void UpdateDiagnosticTest(Guid diagnosticTestId, UpdateDiagnosticTestDto diagnosticTest)
     {
         if (diagnosticTestId != diagnosticTest.Id)
-            throw new BadRequestException($"Diagnostic type with the identifier of {diagnosticTestId} could not be found.");
+            throw new BadRequestException("Route identifier does not match payload identifier.");
 
         var diagnosticTestModel = applicationDbContext.DiagnosticTests
             .FirstOrDefault(x => x.Id == diagnosticTestId)

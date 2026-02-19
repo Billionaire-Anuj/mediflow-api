@@ -144,9 +144,7 @@ public class RoleService(IApplicationDbContext applicationDbContext) : IRoleServ
     public void UpdateRole(Guid roleId, UpdateRoleDto role)
     {
         if (roleId != role.Id)
-        {
             throw new BadRequestException("Route identifier does not match payload identifier.");
-        }
 
         var roleModel = applicationDbContext.Roles.FirstOrDefault(x => x.Id == roleId)
                         ?? throw new NotFoundException($"Role with identifier '{roleId}' was not found.");

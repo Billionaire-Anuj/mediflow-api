@@ -9,15 +9,14 @@ public class Appointment(
     Guid patientId,
     DateTime bookedDate,
     Guid timeslotId,
-    TimeOnly appointmentTime,
     DateTime? cancelledDate,
     AppointmentStatus status,
     string? notes,
     string? symptoms,
     decimal fee,
-    bool isPaidViaGateway,
-    bool isPaidViaOfflineMedium,
-    string? cancellationReason
+    bool isPaidViaGateway = false,
+    bool isPaidViaOfflineMedium = false,
+    string? cancellationReason = null
 ) : AuditableEntity<Guid>
 {
     [ForeignKey(nameof(Doctor))]
@@ -29,8 +28,6 @@ public class Appointment(
     public DateTime BookedDate { get; private set; } = bookedDate;
 
     public Guid TimeslotId { get; private set; } = timeslotId;
-
-    public TimeOnly AppointmentTime { get; private set; } = appointmentTime;
 
     public DateTime? CancelledDate { get; private set; } = cancelledDate;
 
@@ -56,7 +53,9 @@ public class Appointment(
 
     public virtual MedicalRecord? MedicalRecord { get; set; }
 
-    public static Appointment Default => new(Guid.Empty, Guid.Empty, DateTime.MinValue, Guid.Empty, TimeOnly.MinValue, null, AppointmentStatus.Scheduled, null, null, 0m, false, false, null);
+    public static Appointment Default => new(Guid.Empty, Guid.Empty, DateTime.MinValue, Guid.Empty, null, AppointmentStatus.Scheduled, null, null, 0m, false, false, null);
 
     public virtual ICollection<AppointmentDiagnostics> AppointmentDiagnostics { get; private set; } = new List<AppointmentDiagnostics>();
+
+    public virtual ICollection<AppointmentMedications> AppointmentMedications { get; private set; } = new List<AppointmentMedications>();
 }

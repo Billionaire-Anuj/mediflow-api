@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Mediflow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,6 +16,14 @@ public sealed class AppointmentDiagnosticTestsConfigurations : IEntityTypeConfig
         builder
             .Property(x => x.DiagnosticTestId)
             .IsRequired();
+
+        builder
+            .Property(x => x.DiagnosticReport)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, AssetConfigurations.JsonOptions),
+                v => JsonSerializer.Deserialize<Asset>(v, AssetConfigurations.JsonOptions)!)
+            .HasColumnType("jsonb")
+            .IsRequired(false);
 
         builder
             .HasOne(x => x.AppointmentDiagnostics)

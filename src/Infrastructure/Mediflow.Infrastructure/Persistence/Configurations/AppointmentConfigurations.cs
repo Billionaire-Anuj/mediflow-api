@@ -25,10 +25,6 @@ public sealed class AppointmentConfigurations : IEntityTypeConfiguration<Appoint
             .IsRequired();
 
         builder
-            .Property(x => x.AppointmentTime)
-            .IsRequired();
-
-        builder
             .Property(x => x.CancelledDate)
             .IsRequired(false);
 

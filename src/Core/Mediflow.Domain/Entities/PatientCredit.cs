@@ -12,5 +12,7 @@ public class PatientCredit(Guid patientId, decimal creditPoints, string paymentI
 
     public string PaymentIndex { get; private set; } = paymentIndex;
 
+    public static PatientCredit Default => new(Guid.Empty, 0m, string.Empty);
+
     public virtual User? Patient { get; set; }
 }

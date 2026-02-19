@@ -84,7 +84,7 @@ public class MedicationTypeService(IApplicationDbContext applicationDbContext) :
     public void UpdateMedicationType(Guid medicationTypeId, UpdateMedicationTypeDto medicationType)
     {
         if (medicationTypeId != medicationType.Id)
-            throw new BadRequestException($"Medication type with the identifier of {medicationTypeId} could not be found.");
+            throw new BadRequestException("Route identifier does not match payload identifier.");
 
         var medicationTypeModel = applicationDbContext.MedicationTypes
             .FirstOrDefault(x => x.Id == medicationTypeId)

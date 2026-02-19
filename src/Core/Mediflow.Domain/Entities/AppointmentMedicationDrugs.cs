@@ -8,7 +8,7 @@ public class AppointmentMedicationDrugs(
     Guid medicineId,
     string dose,
     string frequency,
-    int duration,
+    string duration,
     string? instructions = null) : AuditableEntity<Guid>
 {
     [ForeignKey(nameof(AppointmentMedications))]
@@ -30,14 +30,14 @@ public class AppointmentMedicationDrugs(
     /// <summary>
     /// Defines the duration for which the drug should be taken, such as "5 days" or "2 weeks".
     /// </summary>
-    public int Duration { get; private set; } = duration;
+    public string Duration { get; private set; } = duration;
 
     /// <summary>
     /// Defines any additional instructions for taking the drug, such as "take with food" or "before sleep".
     /// </summary>
     public string? Instructions { get; private set; } = instructions;
 
-    public static AppointmentMedicationDrugs Default => new(Guid.Empty, Guid.Empty, string.Empty, string.Empty, 0);
+    public static AppointmentMedicationDrugs Default => new(Guid.Empty, Guid.Empty, string.Empty, string.Empty, string.Empty);
 
     public virtual AppointmentMedications? AppointmentMedications { get; set; }
 

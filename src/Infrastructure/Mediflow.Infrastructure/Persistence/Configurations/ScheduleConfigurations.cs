@@ -50,6 +50,12 @@ public sealed class ScheduleConfigurations : IEntityTypeConfiguration<Schedule>
             .IsRequired(false);
 
         builder
+            .HasMany(x => x.Timeslots)
+            .WithOne(x => x.Schedule)
+            .HasForeignKey(x => x.ScheduleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
             .HasOne(x => x.Doctor)
             .WithMany(x => x.Schedules)
             .HasForeignKey(x => x.DoctorId)

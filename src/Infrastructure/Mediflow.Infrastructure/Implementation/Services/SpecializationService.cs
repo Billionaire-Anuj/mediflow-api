@@ -84,7 +84,7 @@ public class SpecializationService(IApplicationDbContext applicationDbContext) :
     public void UpdateSpecialization(Guid specializationId, UpdateSpecializationDto specialization)
     {
         if (specializationId != specialization.Id)
-            throw new BadRequestException($"Specialization with the identifier of {specializationId} could not be found.");
+            throw new BadRequestException("Route identifier does not match payload identifier.");
 
         var specializationModel = applicationDbContext.Specializations
             .FirstOrDefault(x => x.Id == specializationId)

@@ -60,13 +60,13 @@ public class User(
     #endregion
 
     #region Doctor Specific Navigation Properties
-    public virtual DoctorInformation? DoctorInformation { get; set; }
+    public virtual DoctorProfile? DoctorProfile { get; set; }
 
-    public virtual ICollection<Appointment>? DoctorAppointments { get; set; } = new List<Appointment>();
+    public virtual ICollection<Appointment> DoctorAppointments { get; set; } = new List<Appointment>();
 
-    public virtual ICollection<Schedule>? Schedules { get; set; } = new List<Schedule>();
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
-    public virtual ICollection<DoctorSpecialization>? DoctorSpecializations { get; set; } = new List<DoctorSpecialization>();
+    public virtual ICollection<DoctorSpecialization> DoctorSpecializations { get; set; } = new List<DoctorSpecialization>();
     #endregion
 
     public static User Default => new(Guid.Empty, Gender.Male, string.Empty, string.Empty, string.Empty, null, null, string.Empty, string.Empty);
