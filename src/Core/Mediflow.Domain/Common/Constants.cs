@@ -74,12 +74,14 @@ public abstract class Constants
     private abstract class FolderPrefix
     {
         public const string UserImagesPrefix = "user-images";
+        public const string DiagnosticReportsPrefix = "diagnostic-reports";
     }
     
     public abstract class FilePath
     {
         public const string EmailTemplatesFilePath = $"{FolderPath.EmailTemplates}/";
         public const string UserImagesFilePath = $"{FolderPath.Images}/{FolderPrefix.UserImagesPrefix}/";
+        public const string DiagnosticReportsFilePath = $"{FolderPath.Images}/{FolderPrefix.DiagnosticReportsPrefix}/";
     }
     
     public abstract class Cors

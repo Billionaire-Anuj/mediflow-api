@@ -34,4 +34,20 @@ public class AppointmentDiagnostics(
     {
         if (LabTechnicianId != labTechnicianId) LabTechnicianId = labTechnicianId;
     }
+
+    public void UpdateNotes(string notes)
+    {
+        if (Notes != notes) Notes = notes;
+    }
+
+    public void UpdateStatus(DiagnosticStatus status)
+    {
+        if (Status != status) Status = status;
+    }
+
+    public void MarkCompleted(DateTime completedDate, DiagnosticStatus status)
+    {
+        UpdateStatus(status);
+        if (CompletedDate != completedDate) CompletedDate = completedDate;
+    }
 }

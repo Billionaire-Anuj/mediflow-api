@@ -27,4 +27,9 @@ public class AppointmentDiagnosticTests(Guid appointmentDiagnosticsId, Guid diag
     public virtual AppointmentDiagnostics? AppointmentDiagnostics { get; set; }
 
     public virtual DiagnosticTest? DiagnosticTest { get; set; }
+
+    public void AttachDiagnosticReport(Asset diagnosticReport)
+    {
+        DiagnosticReport = diagnosticReport;
+    }
 }

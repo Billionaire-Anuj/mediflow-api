@@ -1,6 +1,6 @@
+using Mediflow.Domain.Common.Base;
 using Mediflow.Domain.Common.Enum;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mediflow.Domain.Common.Base;
 
 namespace Mediflow.Domain.Entities;
 
@@ -33,5 +33,22 @@ public class AppointmentMedications(
     public void AssignPharmacist(Guid? pharmacistId)
     {
         if (PharmacistId != pharmacistId) PharmacistId = pharmacistId;
+    }
+
+    public void UpdateNotes(string notes)
+    {
+        if (Notes != notes) Notes = notes;
+    }
+
+    public void UpdateStatus(DiagnosticStatus status)
+    {
+        if (Status != status) Status = status;
+    }
+
+    public void MarkCollected(Guid pharmacistId, DateTime completedDate)
+    {
+        AssignPharmacist(pharmacistId);
+        UpdateStatus(DiagnosticStatus.Collected);
+        if (CompletedDate != completedDate) CompletedDate = completedDate;
     }
 }

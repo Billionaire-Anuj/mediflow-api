@@ -58,4 +58,30 @@ public class Appointment(
     public virtual ICollection<AppointmentDiagnostics> AppointmentDiagnostics { get; private set; } = new List<AppointmentDiagnostics>();
 
     public virtual ICollection<AppointmentMedications> AppointmentMedications { get; private set; } = new List<AppointmentMedications>();
+
+    public void UpdateDetails(Guid timeslotId, string? notes, string? symptoms)
+    {
+        if (TimeslotId != timeslotId) TimeslotId = timeslotId;
+        if (Notes != notes) Notes = notes;
+        if (Symptoms != symptoms) Symptoms = symptoms;
+    }
+
+    public void MarkCompleted()
+    {
+        if (Status != AppointmentStatus.Completed)
+        {
+            Status = AppointmentStatus.Completed;
+        }
+    }
+
+    public void Cancel(string cancellationReason, DateTime cancelledDate)
+    {
+        if (Status != AppointmentStatus.Canceled)
+        {
+            Status = AppointmentStatus.Canceled;
+        }
+
+        if (CancelledDate != cancelledDate) CancelledDate = cancelledDate;
+        if (CancellationReason != cancellationReason) CancellationReason = cancellationReason;
+    }
 }

@@ -25,4 +25,12 @@ public class MedicalRecord(
     public virtual Appointment? Appointment { get; set; }
 
     public static MedicalRecord Default => new(Guid.Empty, string.Empty, string.Empty, string.Empty);
+
+    public void Update(string diagnosis, string treatment, string prescriptions, string? notes)
+    {
+        if (Diagnosis != diagnosis) Diagnosis = diagnosis;
+        if (Treatment != treatment) Treatment = treatment;
+        if (Prescriptions != prescriptions) Prescriptions = prescriptions;
+        if (Notes != notes) Notes = notes ?? string.Empty;
+    }
 }

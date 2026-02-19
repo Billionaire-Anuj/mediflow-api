@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Mediflow.Domain.Common.Base;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mediflow.Domain.Entities;
 
@@ -43,4 +43,13 @@ public class AppointmentDiagnosticTestResult(
     public static AppointmentDiagnosticTestResult Default => new(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
 
     public virtual AppointmentDiagnosticTests? AppointmentDiagnosticTests { get; set; }
+
+    public void Update(string value, string unit, string upperRange, string lowerRange, string interpretation)
+    {
+        if (Value != value) Value = value;
+        if (Unit != unit) Unit = unit;
+        if (UpperRange != upperRange) UpperRange = upperRange;
+        if (LowerRange != lowerRange) LowerRange = lowerRange;
+        if (Interpretation != interpretation) Interpretation = interpretation;
+    }
 }

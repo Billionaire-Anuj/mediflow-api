@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Mediflow.Domain.Common.Base;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Mediflow.Domain.Entities;
 
@@ -21,4 +21,14 @@ public class Timeslot(Guid scheduleId, DateOnly date, TimeOnly startTime, TimeOn
     public virtual Schedule? Schedule { get; set; }
 
     public virtual Appointment? Appointment { get; set; }
+
+    public void MarkBooked()
+    {
+        if (!IsBooked) IsBooked = true;
+    }
+
+    public void MarkAvailable()
+    {
+        if (IsBooked) IsBooked = false;
+    }
 }
