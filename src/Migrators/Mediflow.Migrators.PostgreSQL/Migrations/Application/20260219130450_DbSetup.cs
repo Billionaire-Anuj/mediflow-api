@@ -194,7 +194,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 });
 
             migrationBuilder.CreateTable(
-                name: "DoctorInformation",
+                name: "DoctorProfiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -214,27 +214,27 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DoctorInformation", x => x.Id);
+                    table.PrimaryKey("PK_DoctorProfiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DoctorInformation_Users_CreatedBy",
+                        name: "FK_DoctorProfiles_Users_CreatedBy",
                         column: x => x.CreatedBy,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DoctorInformation_Users_DeletedBy",
+                        name: "FK_DoctorProfiles_Users_DeletedBy",
                         column: x => x.DeletedBy,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DoctorInformation_Users_DoctorId",
+                        name: "FK_DoctorProfiles_Users_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DoctorInformation_Users_LastModifiedBy",
+                        name: "FK_DoctorProfiles_Users_LastModifiedBy",
                         column: x => x.LastModifiedBy,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -333,8 +333,8 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     EndTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     SlotDurationInMinutes = table.Column<int>(type: "integer", nullable: false, defaultValue: 30),
                     IsAvailable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    ValidStartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ValidEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ValidStartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ValidEndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Notes = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
@@ -570,7 +570,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 });
 
             migrationBuilder.CreateTable(
-                name: "Timeslot",
+                name: "Timeslots",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -589,26 +589,26 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Timeslot", x => x.Id);
+                    table.PrimaryKey("PK_Timeslots", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Timeslot_Schedules_ScheduleId",
+                        name: "FK_Timeslots_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Timeslot_Users_CreatedBy",
+                        name: "FK_Timeslots_Users_CreatedBy",
                         column: x => x.CreatedBy,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Timeslot_Users_DeletedBy",
+                        name: "FK_Timeslots_Users_DeletedBy",
                         column: x => x.DeletedBy,
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Timeslot_Users_LastModifiedBy",
+                        name: "FK_Timeslots_Users_LastModifiedBy",
                         column: x => x.LastModifiedBy,
                         principalTable: "Users",
                         principalColumn: "Id");
@@ -673,7 +673,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     PatientId = table.Column<Guid>(type: "uuid", nullable: false),
                     BookedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TimeslotId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AppointmentTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
                     CancelledDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     Notes = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
@@ -694,9 +693,9 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 {
                     table.PrimaryKey("PK_Appointments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Appointments_Timeslot_TimeslotId",
+                        name: "FK_Appointments_Timeslots_TimeslotId",
                         column: x => x.TimeslotId,
-                        principalTable: "Timeslot",
+                        principalTable: "Timeslots",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -889,6 +888,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AppointmentDiagnosticsId = table.Column<Guid>(type: "uuid", nullable: false),
                     DiagnosticTestId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DiagnosticReport = table.Column<string>(type: "jsonb", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -941,7 +941,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     MedicineId = table.Column<Guid>(type: "uuid", nullable: false),
                     Dose = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Frequency = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Duration = table.Column<int>(type: "integer", nullable: false),
+                    Duration = table.Column<string>(type: "text", nullable: false),
                     Instructions = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
@@ -1269,29 +1269,29 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorInformation_CreatedBy",
-                table: "DoctorInformation",
+                name: "IX_DoctorProfiles_CreatedBy",
+                table: "DoctorProfiles",
                 column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorInformation_DeletedBy",
-                table: "DoctorInformation",
+                name: "IX_DoctorProfiles_DeletedBy",
+                table: "DoctorProfiles",
                 column: "DeletedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorInformation_DoctorId",
-                table: "DoctorInformation",
+                name: "IX_DoctorProfiles_DoctorId",
+                table: "DoctorProfiles",
                 column: "DoctorId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorInformation_LastModifiedBy",
-                table: "DoctorInformation",
+                name: "IX_DoctorProfiles_LastModifiedBy",
+                table: "DoctorProfiles",
                 column: "LastModifiedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DoctorInformation_LicenseNumber",
-                table: "DoctorInformation",
+                name: "IX_DoctorProfiles_LicenseNumber",
+                table: "DoctorProfiles",
                 column: "LicenseNumber",
                 unique: true);
 
@@ -1499,28 +1499,28 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Timeslot_CreatedBy",
-                table: "Timeslot",
+                name: "IX_Timeslots_CreatedBy",
+                table: "Timeslots",
                 column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Timeslot_DeletedBy",
-                table: "Timeslot",
+                name: "IX_Timeslots_DeletedBy",
+                table: "Timeslots",
                 column: "DeletedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Timeslot_LastModifiedBy",
-                table: "Timeslot",
+                name: "IX_Timeslots_LastModifiedBy",
+                table: "Timeslots",
                 column: "LastModifiedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Timeslot_ScheduleId",
-                table: "Timeslot",
+                name: "IX_Timeslots_ScheduleId",
+                table: "Timeslots",
                 column: "ScheduleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Timeslot_ScheduleId_Date_StartTime_EndTime",
-                table: "Timeslot",
+                name: "IX_Timeslots_ScheduleId_Date_StartTime_EndTime",
+                table: "Timeslots",
                 columns: new[] { "ScheduleId", "Date", "StartTime", "EndTime" },
                 unique: true);
 
@@ -1581,7 +1581,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 name: "AuditLogHistories");
 
             migrationBuilder.DropTable(
-                name: "DoctorInformation");
+                name: "DoctorProfiles");
 
             migrationBuilder.DropTable(
                 name: "DoctorSpecializations");
@@ -1641,7 +1641,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 name: "DiagnosticTypes");
 
             migrationBuilder.DropTable(
-                name: "Timeslot");
+                name: "Timeslots");
 
             migrationBuilder.DropTable(
                 name: "Schedules");

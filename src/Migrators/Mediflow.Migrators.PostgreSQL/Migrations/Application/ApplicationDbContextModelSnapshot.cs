@@ -28,9 +28,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<TimeOnly>("AppointmentTime")
-                        .HasColumnType("time without time zone");
-
                     b.Property<DateTime>("BookedDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -210,6 +207,9 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DiagnosticReport")
+                        .HasColumnType("jsonb");
+
                     b.Property<Guid>("DiagnosticTestId")
                         .HasColumnType("uuid");
 
@@ -327,8 +327,9 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("integer");
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Frequency")
                         .IsRequired()
@@ -629,7 +630,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.ToTable("DiagnosticTypes");
                 });
 
-            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorInformation", b =>
+            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -697,7 +698,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.HasIndex("LicenseNumber")
                         .IsUnique();
 
-                    b.ToTable("DoctorInformation");
+                    b.ToTable("DoctorProfiles");
                 });
 
             modelBuilder.Entity("Mediflow.Domain.Entities.DoctorSpecialization", b =>
@@ -1212,11 +1213,11 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
-                    b.Property<DateTime>("ValidEndDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("ValidEndDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime>("ValidStartDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("ValidStartDate")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -1325,9 +1326,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ScheduleId1")
-                        .HasColumnType("uuid");
-
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time without time zone");
 
@@ -1341,12 +1339,10 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
 
                     b.HasIndex("ScheduleId");
 
-                    b.HasIndex("ScheduleId1");
-
                     b.HasIndex("ScheduleId", "Date", "StartTime", "EndTime")
                         .IsUnique();
 
-                    b.ToTable("Timeslot");
+                    b.ToTable("Timeslots");
                 });
 
             modelBuilder.Entity("Mediflow.Domain.Entities.User", b =>
@@ -1703,7 +1699,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
             modelBuilder.Entity("Mediflow.Domain.Entities.AppointmentMedications", b =>
                 {
                     b.HasOne("Mediflow.Domain.Entities.Appointment", "Appointment")
-                        .WithMany()
+                        .WithMany("AppointmentMedications")
                         .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1815,7 +1811,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Navigation("LastModifiedUser");
                 });
 
-            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorInformation", b =>
+            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorProfile", b =>
                 {
                     b.HasOne("Mediflow.Domain.Entities.User", "CreatedUser")
                         .WithMany()
@@ -1829,8 +1825,8 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Mediflow.Domain.Entities.User", "Doctor")
-                        .WithOne("DoctorInformation")
-                        .HasForeignKey("Mediflow.Domain.Entities.DoctorInformation", "DoctorId")
+                        .WithOne("DoctorProfile")
+                        .HasForeignKey("Mediflow.Domain.Entities.DoctorProfile", "DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2099,14 +2095,10 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                         .HasForeignKey("LastModifiedBy");
 
                     b.HasOne("Mediflow.Domain.Entities.Schedule", "Schedule")
-                        .WithMany()
+                        .WithMany("Timeslots")
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Mediflow.Domain.Entities.Schedule", null)
-                        .WithMany("Timeslots")
-                        .HasForeignKey("ScheduleId1");
 
                     b.Navigation("CreatedUser");
 
@@ -2152,6 +2144,8 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
             modelBuilder.Entity("Mediflow.Domain.Entities.Appointment", b =>
                 {
                     b.Navigation("AppointmentDiagnostics");
+
+                    b.Navigation("AppointmentMedications");
 
                     b.Navigation("MedicalRecord");
                 });
@@ -2235,7 +2229,7 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
 
                     b.Navigation("DoctorAppointments");
 
-                    b.Navigation("DoctorInformation");
+                    b.Navigation("DoctorProfile");
 
                     b.Navigation("DoctorSpecializations");
 

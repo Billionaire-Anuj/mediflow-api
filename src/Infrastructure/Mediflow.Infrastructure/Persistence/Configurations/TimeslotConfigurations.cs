@@ -31,7 +31,7 @@ public sealed class TimeslotConfigurations : IEntityTypeConfiguration<Timeslot>
 
         builder
             .HasOne(x => x.Schedule)
-            .WithMany()
+            .WithMany(x => x.Timeslots)
             .HasForeignKey(x => x.ScheduleId)
             .OnDelete(DeleteBehavior.Cascade);
 

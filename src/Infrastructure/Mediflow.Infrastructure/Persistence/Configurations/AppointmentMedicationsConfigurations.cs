@@ -33,7 +33,7 @@ public sealed class AppointmentMedicationsConfigurations : IEntityTypeConfigurat
 
         builder
             .HasOne(x => x.Appointment)
-            .WithMany()
+            .WithMany(x => x.AppointmentMedications)
             .HasForeignKey(x => x.AppointmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
