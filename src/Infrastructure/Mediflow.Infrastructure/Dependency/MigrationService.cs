@@ -21,6 +21,10 @@ public static class MigrationService
         dbInitializer.InitializeResourcesData();
         #endregion
 
+        #region Specializations
+        dbInitializer.InitializeSpecializationsData();
+        #endregion
+
         #region Permissions
         dbInitializer.InitializePermissionsData();
         #endregion

@@ -26,6 +26,11 @@ public class DbInitializer(ILogger<DbInitializer> logger, IEnumerable<IDataSeede
         InitializeInternal(static x => x is AdministratorsSeeder);
     }
 
+    public void InitializeSpecializationsData()
+    {
+        InitializeInternal(static x => x is SpecializationSeeder);
+    }
+
     private void InitializeInternal(Func<IDataSeeder, bool> predicate)
     {
         var dataSeeders = seeders.Where(predicate).OrderBy(x => x.Order).ToList();

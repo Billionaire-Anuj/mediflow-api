@@ -8,6 +8,8 @@ public interface IDbInitializer : IScopedService
 
     void InitializeResourcesData();
 
+    void InitializeSpecializationsData();
+
     void InitializePermissionsData();
 
     void InitializeAdministratorsData();
