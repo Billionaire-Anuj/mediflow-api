@@ -4,6 +4,7 @@ using Mediflow.API.Controllers.Base;
 using Mediflow.Application.DTOs.Roles;
 using Mediflow.Application.Common.Response;
 using Mediflow.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mediflow.API.Controllers;
 
@@ -86,6 +87,7 @@ public class RoleController(IRoleService roleService) : BaseController<RoleContr
             paginationQuery.PageSize);
     }
 
+    [AllowAnonymous]
     [HttpGet("list/available")]
     [Documentation("GetAllAvailableRolesList", "Retrieve all non-paginated available roles in the system.")]
     public ResponseDto<List<RoleDto>> GetAllAvailableRoles(

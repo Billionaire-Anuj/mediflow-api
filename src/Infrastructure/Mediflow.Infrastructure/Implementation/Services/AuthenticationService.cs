@@ -50,6 +50,7 @@ public class AuthenticationService(
 
         var user = applicationDbContext.Users
             .AsNoTracking()
+            .Include(x => x.Role)
             .FirstOrDefault(x => x.EmailAddress == login.EmailAddressOrUsername || x.Username == login.EmailAddressOrUsername);
 
         if (user == null)

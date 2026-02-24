@@ -34,7 +34,7 @@ public class DoctorService(
             : doctor.ToDoctorProfileDto();
     }
 
-    public DoctorProfileDto GetDoctorProfile(Guid doctorId)
+    public DoctorProfileDto GetDoctorProfileById(Guid doctorId)
     {
         var doctor = applicationDbContext.Users
                          .AsNoTracking()
@@ -419,7 +419,7 @@ public class DoctorService(
         applicationDbContext.SaveChanges();
     }
 
-    public List<TimeslotDto> GetDoctorTimeslots(Guid doctorId, DateOnly? startDate, DateOnly? endDate)
+    public List<TimeslotDto> GetDoctorTimeslots(DateOnly? startDate, DateOnly? endDate)
     {
         var userId = applicationUserService.GetUserId;
 
@@ -442,11 +442,39 @@ public class DoctorService(
                 x.Schedule!.DoctorId == doctor.Id &&
                 (!startDate.HasValue || x.Date >= startDate.Value) &&
                 (!endDate.HasValue || x.Date <= endDate.Value))
+            .OrderBy(x => x.StartTime)
             .AsNoTracking();
 
         return timeslotModels.Select(x => x.ToTimeslotDto()).ToList();
     }
-    
+
+    public List<TimeslotDto> GetDoctorTimeslotsById(Guid doctorId, DateOnly? startDate, DateOnly? endDate)
+    {
+        var doctor = applicationDbContext.Users
+                         .AsNoTracking()
+                         .Include(x => x.Role)
+                         .Include(x => x.DoctorProfile)
+                         .Include(x => x.Schedules)
+                         .Include(x => x.DoctorSpecializations)
+                         .ThenInclude(x => x.Specialization)
+                         .FirstOrDefault(x => x.Id == doctorId)
+                     ?? throw new NotFoundException($"Doctor with the identifier of {doctorId} could not be found.");
+
+        if (doctor.Role?.Id.ToString() != Constants.Roles.Doctor.Id)
+            throw new BadRequestException($"Doctor with the identifier of {doctorId} could not be found.");
+
+        var timeslotModels = applicationDbContext.Timeslots
+            .Include(x => x.Schedule)
+            .Where(x =>
+                x.Schedule!.DoctorId == doctor.Id &&
+                (!startDate.HasValue || x.Date >= startDate.Value) &&
+                (!endDate.HasValue || x.Date <= endDate.Value))
+            .OrderBy(x => x.StartTime)
+            .AsNoTracking();
+
+        return timeslotModels.Select(x => x.ToTimeslotDto()).ToList();
+    }
+
     #region Private Methods
     private static IEnumerable<DateOnly> EachDate(DateOnly startDate, DateOnly endDate)
     {

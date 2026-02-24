@@ -4,6 +4,7 @@ using Mediflow.API.Controllers.Base;
 using Mediflow.Application.DTOs.Users;
 using Mediflow.Application.Common.Response;
 using Mediflow.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mediflow.API.Controllers;
 
@@ -87,6 +88,7 @@ public class UserController(IUserService userService) : BaseController<UserContr
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [Documentation("RegisterUser", "Registers a new record of user.")]
     public ResponseDto<bool> RegisterUser([FromForm] RegisterUserDto user)
     {

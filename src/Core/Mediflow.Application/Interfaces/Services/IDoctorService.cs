@@ -10,7 +10,7 @@ public interface IDoctorService : ITransientService
     #region Profile
     DoctorProfileDto GetDoctorProfile();
 
-    DoctorProfileDto GetDoctorProfile(Guid doctorId);
+    DoctorProfileDto GetDoctorProfileById(Guid doctorId);
 
     List<DoctorProfileDto> GetAllDoctorProfiles(
         int pageNumber,
@@ -45,6 +45,8 @@ public interface IDoctorService : ITransientService
 
     void UpdateDoctorSchedule(Guid scheduleId, UpdateScheduleDto doctorSchedule);
 
-    List<TimeslotDto> GetDoctorTimeslots(Guid doctorId, DateOnly? startDate, DateOnly? endDate);
+    List<TimeslotDto> GetDoctorTimeslots(DateOnly? startDate, DateOnly? endDate);
+
+    List<TimeslotDto> GetDoctorTimeslotsById(Guid doctorId, DateOnly? startDate, DateOnly? endDate);
     #endregion
 }

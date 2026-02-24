@@ -27,7 +27,7 @@ public class DoctorController(IDoctorService doctorService) : BaseController<Doc
     [Documentation("GetDoctorProfileById", "Retrieve the respective doctor profile via its identifier in the system.")]
     public ResponseDto<DoctorProfileDto> GetDoctorProfileById([FromRoute] Guid doctorId)
     {
-        var result = doctorService.GetDoctorProfile(doctorId);
+        var result = doctorService.GetDoctorProfileById(doctorId);
 
         return new ResponseDto<DoctorProfileDto>(
             (int)HttpStatusCode.OK,
@@ -136,14 +136,28 @@ public class DoctorController(IDoctorService doctorService) : BaseController<Doc
             true);
     }
 
-    [HttpGet("{doctorId:guid}/timeslots")]
-    [Documentation("GetDoctorTimeslots", "Retrieve timeslots for a doctor in a date range.")]
+    [HttpGet("timeslots")]
+    [Documentation("GetDoctorTimeslots", "Retrieve timeslots of the profile in a date range.")]
     public ResponseDto<List<TimeslotDto>> GetDoctorTimeslots(
+        [FromQuery] DateOnly? startDate = null,
+        [FromQuery] DateOnly? endDate = null)
+    {
+        var result = doctorService.GetDoctorTimeslots(startDate, endDate);
+
+        return new ResponseDto<List<TimeslotDto>>(
+            (int)HttpStatusCode.OK,
+            "Doctor timeslots successfully fetched.",
+            result);
+    }
+
+    [HttpGet("{doctorId:guid}/timeslots")]
+    [Documentation("GetDoctorTimeslotsById", "Retrieve timeslots for a doctor in a date range.")]
+    public ResponseDto<List<TimeslotDto>> GetDoctorTimeslotsById(
         [FromRoute] Guid doctorId,
         [FromQuery] DateOnly? startDate = null,
         [FromQuery] DateOnly? endDate = null)
     {
-        var result = doctorService.GetDoctorTimeslots(doctorId, startDate, endDate);
+        var result = doctorService.GetDoctorTimeslotsById(doctorId, startDate, endDate);
 
         return new ResponseDto<List<TimeslotDto>>(
             (int)HttpStatusCode.OK,

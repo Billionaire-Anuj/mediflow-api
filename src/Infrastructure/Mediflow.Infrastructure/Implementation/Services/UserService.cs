@@ -39,7 +39,8 @@ public class UserService(
         var roleIdentifiers = roleIds != null ? new HashSet<Guid>(roleIds) : null;
 
         var userModels = applicationDbContext.Users
-            .Where(x => 
+            .Where(x =>
+                x.Role!.IsDisplayed &&
                 (string.IsNullOrEmpty(globalSearch) 
                     || x.Name.ToLower().Contains(globalSearch.ToLower())
                     || x.Username.ToLower().Contains(globalSearch.ToLower())
@@ -80,6 +81,7 @@ public class UserService(
 
         var userModels = applicationDbContext.Users
             .Where(x => 
+                x.Role!.IsDisplayed &&
                 (string.IsNullOrEmpty(globalSearch) 
                     || x.Name.ToLower().Contains(globalSearch.ToLower())
                     || x.Username.ToLower().Contains(globalSearch.ToLower())
@@ -140,6 +142,11 @@ public class UserService(
             asset?.ToAssetModel(),
             passwordHash,
             user.PhoneNumber);
+
+        if (role.Id.ToString() == Constants.Roles.Doctor.Id || role.Id.ToString() == Constants.Roles.LabTechnician.Id || role.Id.ToString() == Constants.Roles.Pharmacist.Id)
+        {
+            userModel.IsActive = false;
+        }
 
         applicationDbContext.Users.Add(userModel);
 
