@@ -25,6 +25,22 @@ public static class MigrationService
         dbInitializer.InitializeSpecializationsData();
         #endregion
 
+        #region Diagnostic Types
+        dbInitializer.InitializeDiagnosticTypesData();
+        #endregion
+
+        #region Diagnostic Tests
+        dbInitializer.InitializeDiagnosticTestsData();
+        #endregion
+
+        #region Medication Types
+        dbInitializer.InitializeMedicationTypesData();
+        #endregion
+
+        #region Medicines
+        dbInitializer.InitializeMedicinesData();
+        #endregion
+
         #region Permissions
         dbInitializer.InitializePermissionsData();
         #endregion

@@ -15,6 +15,31 @@ public class DbInitializer(ILogger<DbInitializer> logger, IEnumerable<IDataSeede
         InitializeInternal(static x => x is ResourcesSeeder);
     }
 
+    public void InitializeSpecializationsData()
+    {
+        InitializeInternal(static x => x is SpecializationSeeder);
+    }
+
+    public void InitializeDiagnosticTypesData()
+    {
+        InitializeInternal(static x => x is DiagnosticTypeSeeder);
+    }
+
+    public void InitializeDiagnosticTestsData()
+    {
+        InitializeInternal(static x => x is DiagnosticTestSeeder);
+    }
+
+    public void InitializeMedicationTypesData()
+    {
+        InitializeInternal(static x => x is MedicationTypeSeeder);
+    }
+
+    public void InitializeMedicinesData()
+    {
+        InitializeInternal(static x => x is MedicineSeeder);
+    }
+
     public void InitializePermissionsData()
     {
         // Please comment on the following line after the first round of permission seeding.
@@ -24,11 +49,6 @@ public class DbInitializer(ILogger<DbInitializer> logger, IEnumerable<IDataSeede
     public void InitializeAdministratorsData()
     {
         InitializeInternal(static x => x is AdministratorsSeeder);
-    }
-
-    public void InitializeSpecializationsData()
-    {
-        InitializeInternal(static x => x is SpecializationSeeder);
     }
 
     private void InitializeInternal(Func<IDataSeeder, bool> predicate)

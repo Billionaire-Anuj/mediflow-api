@@ -10,6 +10,14 @@ public interface IDbInitializer : IScopedService
 
     void InitializeSpecializationsData();
 
+    void InitializeDiagnosticTypesData();
+
+    void InitializeDiagnosticTestsData();
+
+    void InitializeMedicationTypesData();
+
+    void InitializeMedicinesData();
+
     void InitializePermissionsData();
 
     void InitializeAdministratorsData();
