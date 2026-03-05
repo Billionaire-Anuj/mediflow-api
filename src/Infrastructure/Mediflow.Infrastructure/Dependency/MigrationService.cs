@@ -20,6 +20,10 @@ public static class MigrationService
         #region Resources
         dbInitializer.InitializeResourcesData();
         #endregion
+        
+        #region Administrators
+        dbInitializer.InitializeAdministratorsData();
+        #endregion
 
         #region Specializations
         dbInitializer.InitializeSpecializationsData();
@@ -43,10 +47,6 @@ public static class MigrationService
 
         #region Permissions
         dbInitializer.InitializePermissionsData();
-        #endregion
-
-        #region Administrators
-        dbInitializer.InitializeAdministratorsData();
         #endregion
     }
 }

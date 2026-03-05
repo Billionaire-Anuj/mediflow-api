@@ -45,6 +45,7 @@ public class MedicationTypeSeeder(ILogger<MedicationTypeSeeder> logger, IApplica
             if (medicationType != null)
             {
                 medicationType.Update(specification.Title, specification.Description);
+                medicationType.LastModifiedBy = tenantAdministratorUser.Id;
                 applicationDbContext.MedicationTypes.Update(medicationType);
                 continue;
             }

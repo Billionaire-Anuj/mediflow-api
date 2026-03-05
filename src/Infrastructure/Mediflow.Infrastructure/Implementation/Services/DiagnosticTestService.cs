@@ -68,6 +68,7 @@ public class DiagnosticTestService(IApplicationDbContext applicationDbContext) :
                 (title == null || x.Title.ToLower().Contains(title.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())) && 
                 (specimen == null || x.Specimen.ToLower().Contains(specimen.ToLower())))
+            .Include(x => x.DiagnosticType)
             .OrderBy(x => orderBys);
 
         return diagnosticTestModels.Select(x => x.ToDiagnosticTestDto()).ToList();

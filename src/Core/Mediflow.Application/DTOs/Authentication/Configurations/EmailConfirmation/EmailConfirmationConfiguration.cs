@@ -1,0 +1,3 @@
+namespace Mediflow.Application.DTOs.Authentication.Configurations.EmailConfirmation;
+
+public class EmailConfirmationConfiguration : AbstractEmailConfirmationConfiguration;

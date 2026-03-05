@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Mediflow.Application.Settings;
 using System.IdentityModel.Tokens.Jwt;
+using Mediflow.Application.DTOs.Assets;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.DTOs.Emails;
 using Mediflow.Application.DTOs.Profiles;
@@ -27,12 +28,14 @@ using Mediflow.Domain.Common.Enum.Configurations;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 using Mediflow.Application.DTOs.Authentication.Configurations._2FA;
 using Mediflow.Application.DTOs.Authentication.Configurations.ForgotPassword;
+using Mediflow.Application.DTOs.Authentication.Configurations.EmailConfirmation;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Mediflow.Infrastructure.Implementation.Services;
 
 public class AuthenticationService(
     ITokenManager tokenManager,
+    IFileService fileService,
     IOptions<JwtSettings> jwtSettings,
     ILogger<AuthenticationService> logger,
     IWebHostEnvironment webHostEnvironment,
@@ -42,6 +45,7 @@ public class AuthenticationService(
     ITwoFactorTokenManager twoFactorTokenManager) : IAuthenticationService
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private const string UserImagesFilePath = Constants.FilePath.UserImagesFilePath;
 
     #region Login and 2FA Settings
     public AuthenticationDto Login(LoginDto login)
@@ -165,6 +169,125 @@ public class AuthenticationService(
         {
             Profile = result.Profile
         };
+    }
+    #endregion
+
+    #region Registration
+    public void RegisterPatient(RegisterPatientDto patient)
+    {
+        var transactionOptions = new TransactionOptions
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TransactionManager.DefaultTimeout
+        };
+
+        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
+
+        var duplicateUser = applicationDbContext.Users.FirstOrDefault(x =>
+            x.Username == patient.Username ||
+            x.EmailAddress == patient.EmailAddress ||
+            x.PhoneNumber == patient.PhoneNumber);
+
+        if (duplicateUser != null)
+        {
+            throw new BadRequestException("The following user with the specified username, phone number or email address already exists.");
+        }
+
+        var role = applicationDbContext.Roles
+                   .FirstOrDefault(x => x.Id.ToString() == Constants.Roles.Patient.Id)
+                   ?? throw new NotFoundException("The patient role could not be found.");
+
+        if (!role.IsRegisterable)
+        {
+            throw new BadRequestException("A new user with the respective role cannot be be registered.");
+        }
+
+        var passwordHash = patient.Password.Hash();
+
+        var asset = patient.ProfileImage != null ? fileService.UploadDocument(patient.ProfileImage, UserImagesFilePath) : null;
+
+        var userModel = new User(
+            role.Id,
+            patient.Gender,
+            patient.Name,
+            patient.Username,
+            patient.EmailAddress,
+            patient.Address,
+            asset?.ToAssetModel(),
+            passwordHash,
+            patient.PhoneNumber);
+
+        applicationDbContext.Users.Add(userModel);
+
+        applicationDbContext.SaveChanges();
+
+        var verificationCode = PasswordExtensionMethods.GeneratePassword(6, false, true, true, false);
+
+        var confirmationConfiguration = new EmailConfirmationConfiguration
+        {
+            OneTimePassword = verificationCode,
+            IsVerified = false
+        };
+
+        userPropertyService.SaveProperty(userModel.Id, nameof(UserConfiguration.EMAIL_CONFIRMATION_OTP), confirmationConfiguration);
+
+        var emailModel = new EmailConfirmationEmailDto
+        {
+            UserId = userModel.Id,
+            Otp = verificationCode,
+            OtpExpiryMinutes = 15
+        };
+
+        var outbox = new EmailOutbox(
+            userModel.EmailAddress,
+            userModel.Name,
+            "Confirm your email address",
+            EmailProcess.EmailConfirmation,
+            JsonSerializer.Serialize(emailModel)
+        );
+
+        applicationDbContext.EmailOutboxes.Add(outbox);
+
+        applicationDbContext.SaveChanges();
+
+        scope.Complete();
+    }
+
+    public void ConfirmEmailAddress(EmailConfirmationVerificationDto confirmation)
+    {
+        var transactionOptions = new TransactionOptions
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TransactionManager.DefaultTimeout
+        };
+
+        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
+
+        var user = applicationDbContext.Users
+                       .AsNoTracking()
+                       .FirstOrDefault(x => x.EmailAddress.ToLower() == confirmation.EmailAddressOrUsername.ToLower()
+                                            || x.Username.ToLower() == confirmation.EmailAddressOrUsername.ToLower())
+                   ?? throw new NotFoundException("The following user has not been registered to our system.");
+
+        var confirmationProperty = userPropertyService.GetProperty<EmailConfirmationConfiguration>(
+                                       user.Id,
+                                       nameof(UserConfiguration.EMAIL_CONFIRMATION_OTP))
+                                   ?? throw new NotFoundException("No email confirmation request found for this user.");
+
+        if (confirmationProperty.IsVerified)
+            throw new BadRequestException("The email address has already been verified.");
+
+        if (confirmationProperty.OneTimePassword != confirmation.Otp)
+            throw new BadRequestException("The provided OTP is invalid, please try again.");
+
+        confirmationProperty.IsVerified = true;
+
+        userPropertyService.SaveProperty(
+            user.Id,
+            nameof(UserConfiguration.EMAIL_CONFIRMATION_OTP),
+            confirmationProperty);
+
+        scope.Complete();
     }
     #endregion
 

@@ -68,6 +68,7 @@ public class MedicineService(IApplicationDbContext applicationDbContext) : IMedi
                 (title == null || x.Title.ToLower().Contains(title.ToLower())) &&
                 (description == null || x.Description.ToLower().Contains(description.ToLower())) &&
                 (format == null || x.Format.ToLower().Contains(format.ToLower())))
+            .Include(x => x.MedicationType)
             .OrderBy(x => orderBys);
 
         return medicineModels.Select(x => x.ToMedicineDto()).ToList();

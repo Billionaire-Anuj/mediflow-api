@@ -67,7 +67,7 @@ public class SpecializationSeeder(
 
             if (duplicateSpecializationSet.Contains(title)) continue;
 
-            specializationModels.Add(new Specialization(title, "Seeded from doctor recommendation dataset."));
+            specializationModels.Add(new Specialization(title, string.Empty));
 
             duplicateSpecializationSet.Add(title);
         }

@@ -4,5 +4,6 @@ namespace Mediflow.Domain.Common.Enum.Configurations;
 public enum UserConfiguration
 {
     TWO_FACTOR_AUTHENTICATION_SETTINGS,
-    FORGOT_PASSWORD_CONFIRMATION_OTP
+    FORGOT_PASSWORD_CONFIRMATION_OTP,
+    EMAIL_CONFIRMATION_OTP
 }

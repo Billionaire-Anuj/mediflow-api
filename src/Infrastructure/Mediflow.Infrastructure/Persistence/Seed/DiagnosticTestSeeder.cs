@@ -56,6 +56,7 @@ public class DiagnosticTestSeeder(ILogger<DiagnosticTestSeeder> logger, IApplica
             if (diagnosticTest != null)
             {
                 diagnosticTest.Update(diagnosticType.Id, specification.Title, specification.Description, specification.Specimen);
+                diagnosticTest.LastModifiedBy = tenantAdministratorUser.Id;
                 applicationDbContext.DiagnosticTests.Update(diagnosticTest);
                 continue;
             }

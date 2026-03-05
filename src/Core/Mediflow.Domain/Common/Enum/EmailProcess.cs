@@ -4,4 +4,5 @@ public enum EmailProcess
 {
     ForgotPasswordConfirmation,
     PasswordResetConfirmation,
+    EmailConfirmation,
 }

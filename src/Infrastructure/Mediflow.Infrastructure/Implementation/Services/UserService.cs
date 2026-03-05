@@ -123,6 +123,11 @@ public class UserService(
                    .FirstOrDefault(x => x.Id == user.RoleId)
                    ?? throw new NotFoundException("The respective role with the specified identifier was not found.");
 
+        if (role.Id.ToString() != Constants.Roles.Patient.Id)
+        {
+            throw new BadRequestException("Only patients can self-register. Please contact an administrator for staff accounts.");
+        }
+
         if (!role.IsRegisterable)
         {
             throw new BadRequestException("A new user with the respective role cannot be be registered.");

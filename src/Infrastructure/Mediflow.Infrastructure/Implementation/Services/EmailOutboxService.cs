@@ -207,7 +207,8 @@ public class EmailOutboxService(
 
         var emailOutboxes = applicationDbContext.EmailOutboxes
             .Where(x => x.Status == OutboxStatus.Pending)
-            .OrderBy(x => x.ScheduledDate);
+            .OrderBy(x => x.ScheduledDate)
+            .ToList();
 
         foreach (var emailOutbox in emailOutboxes)
         {
@@ -284,6 +285,29 @@ public class EmailOutboxService(
                         emailModel.ApplicationRoleName = applicationRoleModel.Name;
                         emailModel.UserCredentials = $"{userModel.Username} or {userModel.EmailAddress}";
                         emailModel.TemporaryPassword = resetPasswordEmail.Password;
+                        emailModel.SupportEmail = "support@mediflow.com";
+                    }
+
+                    break;
+                }
+                case EmailProcess.EmailConfirmation:
+                {
+                    var confirmationEmail = JsonSerializer.Deserialize<EmailConfirmationEmailDto>(emailOutbox.PayloadJson);
+
+                    if (confirmationEmail != null)
+                    {
+                        var userModel = await applicationDbContext.Users.FindAsync(confirmationEmail.UserId)
+                                            ?? throw new NotFoundException($"User with identifier '{confirmationEmail.UserId}' not found.");
+
+                        emailModel.FullName = emailOutbox.Name;
+                        emailModel.ToEmailAddress = emailOutbox.ToEmail;
+                        emailModel.Subject = emailOutbox.Subject;
+                        emailModel.Process = EmailProcess.EmailConfirmation;
+
+                        emailModel.Username = userModel.Username;
+                        emailModel.Otp = confirmationEmail.Otp;
+                        emailModel.UserEmailAddress = userModel.EmailAddress;
+                        emailModel.OtpExpiryMinutes = confirmationEmail.OtpExpiryMinutes;
                         emailModel.SupportEmail = "support@mediflow.com";
                     }
 

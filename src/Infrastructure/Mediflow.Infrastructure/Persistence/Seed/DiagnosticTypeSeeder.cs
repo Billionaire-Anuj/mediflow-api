@@ -45,6 +45,7 @@ public class DiagnosticTypeSeeder(ILogger<DiagnosticTypeSeeder> logger, IApplica
             if (diagnosticType != null)
             {
                 diagnosticType.Update(specification.Title, specification.Description);
+                diagnosticType.LastModifiedBy = tenantAdministratorUser.Id;
                 applicationDbContext.DiagnosticTypes.Update(diagnosticType);
                 continue;
             }

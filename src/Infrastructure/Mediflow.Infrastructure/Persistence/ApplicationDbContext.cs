@@ -193,98 +193,11 @@ public class ApplicationDbContext(
 
         if (entries.Count == 0) return;
     
-        bool IsUserType(Type type) => type == typeof(User);
-        bool IsRoleType(Type type) => type == typeof(Role);
-        bool IsPropertyType(Type type) => type == typeof(Property);
-        bool IsResourceType(Type type) => type == typeof(Resource);
-        bool IsLoginType(Type type) => type == typeof(UserLoginLog);
-        bool IsPermissionType(Type type) => type == typeof(Permission);
-        bool IsEmailOutboxType(Type type) => type == typeof(EmailOutbox);
-        bool IsUserLoginLogType(Type type) => type == typeof(UserLoginLog);
-        bool IsUserConfigurationType(Type type) => type == typeof(UserProperty);
-        bool IsAuditType(Type type) => type == typeof(AuditLog) || type == typeof(AuditLogHistory);
-
-        // Used During the First Migration of Location Data Seed. 
-        // bool IsLocationType(Type type) => type == typeof(Province) || type == typeof(District) || type == typeof(Locality) || type == typeof(Ward);
-
         var userId = applicationUserService?.GetUserId;
     
         foreach (var entry in entries)
         {
-            var entityType = entry.Entity.GetType();
-
             StampEntity(entry.Entity, entry.State, userId ?? Guid.Empty, DateTime.Now);
-
-            if (entry.State == EntityState.Added) continue;
-
-            if (IsUserType(entityType)) continue;
-            if (IsRoleType(entityType)) continue;
-            if (IsAuditType(entityType)) continue;
-            if (IsLoginType(entityType)) continue;
-            if (IsPropertyType(entityType)) continue;
-            if (IsResourceType(entityType)) continue;
-            if (IsPermissionType(entityType)) continue;
-            if (IsEmailOutboxType(entityType)) continue;
-            if (IsUserLoginLogType(entityType)) continue;
-            if (IsUserConfigurationType(entityType)) continue;
-
-            var (entityName, entityId) = GetEntityNameAndId(entry);
-
-            var changeType = entry.State switch
-            {
-                EntityState.Added => ChangeType.Created,
-                EntityState.Modified => ChangeType.Updated,
-                EntityState.Deleted => ChangeType.Deleted,
-                _ => ChangeType.Updated
-            };
-
-            var auditLog = new AuditLog(entityName, entityId, changeType, null, false, userId)
-            {
-                AuditLogHistories = new List<AuditLogHistory>()
-            };
-
-            foreach (var propertyEntry in entry.Properties)
-            {
-                if (propertyEntry.Metadata.IsShadowProperty()) continue;
-                if (propertyEntry.Metadata.IsConcurrencyToken) continue;
-                if (IgnoredProps.Contains(propertyEntry.Metadata.Name)) continue;
-
-                // Skipping of Status History Updates for Candidate Entity.
-                if (entityName == "Candidate" && propertyEntry.Metadata.Name is "Status" or "CompanyId") continue;
-
-                var shouldAddDetail = entry.State switch
-                {
-                    // TODO: Verification if Added History is Required or Not.
-                    EntityState.Added   => false,
-                    EntityState.Deleted => true,
-                    EntityState.Modified => propertyEntry.IsModified && !Equals(propertyEntry.OriginalValue, propertyEntry.CurrentValue),
-                    _ => false
-                };
-
-                if (!shouldAddDetail) continue;
-
-                var (oldValue, newValue) = entry.State switch
-                {
-                    EntityState.Added   => (null, propertyEntry.CurrentValue),
-                    EntityState.Deleted => (propertyEntry.OriginalValue, null),
-                    EntityState.Modified => (propertyEntry.OriginalValue, propertyEntry.CurrentValue),
-                    _ => (null, null)
-                };
-
-                var auditLogHistory = new AuditLogHistory(
-                    auditLog.Id,
-                    propertyEntry.Metadata.Name.ToDisplayName(propertyEntry.Metadata.ClrType),
-                    MapFieldType(propertyEntry.Metadata.ClrType),
-                    Serialize(oldValue),
-                    Serialize(newValue));
-
-                auditLog.AuditLogHistories.Add(auditLogHistory);
-            }
-
-            if (auditLog is { ChangeType: ChangeType.Updated, AuditLogHistories.Count: > 0 })
-            {
-                AuditLogs.Add(auditLog);
-            }
         }
     }
     #endregion

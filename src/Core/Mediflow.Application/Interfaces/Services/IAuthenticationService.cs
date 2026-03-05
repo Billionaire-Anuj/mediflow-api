@@ -15,6 +15,12 @@ public interface IAuthenticationService : ITransientService
     LoginSpaDto Login2FactorAuthenticationViaSpa(Login2FactorAuthenticationDto login);
     #endregion
 
+    #region Registration
+    void RegisterPatient(RegisterPatientDto patient);
+
+    void ConfirmEmailAddress(EmailConfirmationVerificationDto confirmation);
+    #endregion
+
     #region Forgot Password
     void ForgetPasswordConfirmation(ForgotPasswordConfirmationDto forgotPassword);
 

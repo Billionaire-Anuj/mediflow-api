@@ -108,6 +108,16 @@ public class EmailService(IWebHostEnvironment webHostEnvironment) : IEmailServic
                 result.Add(new KeyValuePair<string, string>("{$temporaryPassword}", email.TemporaryPassword)); 
                 result.Add(new KeyValuePair<string, string>("{$supportEmail}", email.SupportEmail));
                 break;
+
+            case EmailProcess.EmailConfirmation:
+                result.Add(new KeyValuePair<string, string>("{$date}", DateTime.Now.ToString("dd MMMM yyyy")));
+                result.Add(new KeyValuePair<string, string>("{$year}", DateTime.Now.ToString("yyyy")));
+                result.Add(new KeyValuePair<string, string>("{$userName}", email.Username));
+                result.Add(new KeyValuePair<string, string>("{$otpExpiryMinutes}", email.OtpExpiryMinutes.ToString()));
+                result.Add(new KeyValuePair<string, string>("{$otpCode}", email.Otp));
+                result.Add(new KeyValuePair<string, string>("{$userEmailAddress}", email.UserEmailAddress));
+                result.Add(new KeyValuePair<string, string>("{$supportEmail}", email.SupportEmail));
+                break;
         }
 
         return result;

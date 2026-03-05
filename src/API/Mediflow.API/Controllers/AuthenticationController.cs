@@ -67,6 +67,34 @@ public class AuthenticationController(IAuthenticationService authenticationServi
     }
 
     [AllowAnonymous]
+    [HttpPost("register/patient")]
+    [Documentation("RegisterPatient", "Registers a new patient and sends an email confirmation OTP.")]
+    public ResponseDto<bool> RegisterPatient([FromForm] RegisterPatientDto patient)
+    {
+        authenticationService.RegisterPatient(patient);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Registration successful. Please verify your email address.",
+            true
+        );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("confirm/email")]
+    [Documentation("ConfirmEmailAddress", "Confirms the OTP for the user's email address.")]
+    public ResponseDto<bool> ConfirmEmailAddress([FromBody] EmailConfirmationVerificationDto confirmation)
+    {
+        authenticationService.ConfirmEmailAddress(confirmation);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Email successfully confirmed.",
+            true
+        );
+    }
+
+    [AllowAnonymous]
     [HttpPost("forgot/password")]
     [Documentation("ForgetPasswordConfirmation", "Triggers an email address for forgot password confirmation.")]
     public ResponseDto<bool> ForgetPasswordConfirmation([FromBody] ForgotPasswordConfirmationDto forgotPassword)

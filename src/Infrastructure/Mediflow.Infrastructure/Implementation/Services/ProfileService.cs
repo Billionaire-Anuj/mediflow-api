@@ -59,7 +59,7 @@ public class ProfileService(
 
         userModel.Update(
             userModel.RoleId,
-            userModel.Gender,
+            profile.Gender,
             profile.Name,
             profile.Username,
             profile.EmailAddress,
