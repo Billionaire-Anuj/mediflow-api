@@ -1,0 +1,9 @@
+{
+    "EsewaSettings": {
+        "MerchantCode": "EPAYTEST",
+        "SecretKey": "test_secret_key",
+        "InitiateUrl": "https://rc-epay.esewa.com.np/api/epay/main/v2/form",
+        "SuccessUrl": "http://localhost:6075/patient/profile",
+        "FailureUrl": "http://localhost:6075/patient/profile"
+    }
+}

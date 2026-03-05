@@ -1,0 +1,10 @@
+{
+    "KhaltiSettings": {
+        "PublicKey": "test_public_key",
+        "SecretKey": "test_secret_key",
+        "InitiateUrl": "https://dev.khalti.com/api/v2/epayment/initiate/",
+        "LookupUrl": "https://dev.khalti.com/api/v2/epayment/lookup/",
+        "ReturnUrl": "http://localhost:6075/patient/profile",
+        "WebsiteUrl": "http://localhost:6075"
+    }
+}
