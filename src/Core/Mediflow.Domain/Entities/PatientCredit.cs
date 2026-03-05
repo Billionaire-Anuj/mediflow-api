@@ -26,4 +26,15 @@ public class PatientCredit(Guid patientId, decimal creditPoints, string paymentI
         CreditPoints += credits;
         PaymentIndex = paymentIndex;
     }
+
+    public void DeductCredits(decimal credits, string paymentIndex)
+    {
+        if (credits <= 0)
+        {
+            return;
+        }
+
+        CreditPoints -= credits;
+        PaymentIndex = paymentIndex;
+    }
 }

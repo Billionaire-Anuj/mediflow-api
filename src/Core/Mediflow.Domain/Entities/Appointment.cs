@@ -53,6 +53,8 @@ public class Appointment(
 
     public virtual MedicalRecord? MedicalRecord { get; set; }
 
+    public virtual DoctorReview? Review { get; set; }
+
     public static Appointment Default => new(Guid.Empty, Guid.Empty, DateTime.MinValue, Guid.Empty, null, AppointmentStatus.Scheduled, null, null, 0m, false, false, null);
 
     public virtual ICollection<AppointmentDiagnostics> AppointmentDiagnostics { get; private set; } = new List<AppointmentDiagnostics>();
@@ -83,5 +85,15 @@ public class Appointment(
 
         if (CancelledDate != cancelledDate) CancelledDate = cancelledDate;
         if (CancellationReason != cancellationReason) CancellationReason = cancellationReason;
+    }
+
+    public void MarkPaidViaGateway()
+    {
+        if (IsPaidViaGateway)
+        {
+            return;
+        }
+
+        IsPaidViaGateway = true;
     }
 }

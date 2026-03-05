@@ -6,10 +6,13 @@ using Mediflow.Application.Common.Response;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Doctors.Schedules;
 using Mediflow.Application.DTOs.Doctors.Schedules.Timeslots;
+using Mediflow.Application.DTOs.Reviews;
 
 namespace Mediflow.API.Controllers;
 
-public class DoctorController(IDoctorService doctorService) : BaseController<DoctorController>
+public class DoctorController(
+    IDoctorService doctorService,
+    IDoctorReviewService doctorReviewService) : BaseController<DoctorController>
 {
     [HttpGet("profile")]
     [Documentation("GetDoctorProfile", "Retrieve the logged in doctor's profile.")]
@@ -162,6 +165,18 @@ public class DoctorController(IDoctorService doctorService) : BaseController<Doc
         return new ResponseDto<List<TimeslotDto>>(
             (int)HttpStatusCode.OK,
             "Doctor timeslots successfully fetched.",
+            result);
+    }
+
+    [HttpGet("{doctorId:guid}/reviews")]
+    [Documentation("GetDoctorReviewsByDoctorId", "Retrieve all reviews for a doctor.")]
+    public ResponseDto<List<DoctorReviewDto>> GetDoctorReviewsByDoctorId([FromRoute] Guid doctorId)
+    {
+        var result = doctorReviewService.GetDoctorReviewsByDoctorId(doctorId);
+
+        return new ResponseDto<List<DoctorReviewDto>>(
+            (int)HttpStatusCode.OK,
+            "Doctor reviews successfully fetched.",
             result);
     }
 }

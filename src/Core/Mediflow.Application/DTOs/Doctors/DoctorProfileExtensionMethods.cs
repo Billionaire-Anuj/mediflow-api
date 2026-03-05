@@ -11,6 +11,10 @@ public static class DoctorProfileExtensionMethods
     public static DoctorProfileDto ToDoctorProfileDto(this User doctor)
     {
         var doctorProfile = doctor.DoctorProfile ?? DoctorProfile.Default;
+        var reviewCount = doctor.DoctorReviews.Count;
+        var averageRating = reviewCount == 0
+            ? 0m
+            : Math.Round(doctor.DoctorReviews.Sum(x => x.Rating) / (decimal)reviewCount, 1);
 
         return new DoctorProfileDto
         {
@@ -25,6 +29,8 @@ public static class DoctorProfileExtensionMethods
             EmailAddress = doctor.EmailAddress,
             LicenseNumber = doctorProfile.LicenseNumber,
             ConsultationFee = doctorProfile.ConsultationFee,
+            AverageRating = averageRating,
+            ReviewCount = reviewCount,
             Role = (doctor.Role ?? Role.Default).ToRoleDto(),
             ProfileImage = doctor.ProfileImage?.ToAssetDto(),
             EducationInformation = doctorProfile.EducationInformation,

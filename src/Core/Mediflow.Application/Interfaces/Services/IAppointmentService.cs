@@ -40,4 +40,6 @@ public interface IAppointmentService : ITransientService
     void CancelAppointment(Guid appointmentId, CancelAppointmentDto appointment);
 
     void ConsultAppointment(Guid appointmentId, ConsultAppointmentDto appointment);
+
+    void PayAppointmentWithCredits(Guid appointmentId);
 }

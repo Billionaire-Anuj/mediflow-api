@@ -111,20 +111,5 @@ public sealed class AppointmentConfigurations : IEntityTypeConfiguration<Appoint
             .WithMany()
             .HasForeignKey(x => x.DeletedBy)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasIndex(x => x.DoctorId);
-
-        builder
-            .HasIndex(x => x.PatientId);
-
-        builder
-            .HasIndex(x => x.Status);
-
-        builder
-            .HasIndex(x => x.BookedDate);
-
-        builder
-            .HasIndex(x => x.TimeslotId);
     }
 }

@@ -5,10 +5,13 @@ using Mediflow.API.Controllers.Base;
 using Mediflow.Application.Common.Response;
 using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
+using Mediflow.Application.DTOs.Reviews;
 
 namespace Mediflow.API.Controllers;
 
-public class AppointmentController(IAppointmentService appointmentService) : BaseController<AppointmentController>
+public class AppointmentController(
+    IAppointmentService appointmentService,
+    IDoctorReviewService doctorReviewService) : BaseController<AppointmentController>
 {
     [HttpGet]
     [Documentation("GetAllAppointments", "Retrieve all paginated appointments in the system.")]
@@ -128,6 +131,30 @@ public class AppointmentController(IAppointmentService appointmentService) : Bas
         return new ResponseDto<bool>(
             (int)HttpStatusCode.OK,
             "Appointment successfully consulted.",
+            true);
+    }
+
+    [HttpPost("{appointmentId:guid}/review")]
+    [Documentation("CreateDoctorReview", "Creates a review for a completed appointment.")]
+    public ResponseDto<bool> CreateDoctorReview([FromRoute] Guid appointmentId, [FromBody] CreateDoctorReviewDto review)
+    {
+        doctorReviewService.CreateDoctorReview(appointmentId, review);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Review successfully submitted.",
+            true);
+    }
+
+    [HttpPatch("{appointmentId:guid}/pay/credits")]
+    [Documentation("PayAppointmentWithCredits", "Pays for an appointment using patient credits.")]
+    public ResponseDto<bool> PayAppointmentWithCredits([FromRoute] Guid appointmentId)
+    {
+        appointmentService.PayAppointmentWithCredits(appointmentId);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Appointment paid successfully using credits.",
             true);
     }
 }

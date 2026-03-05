@@ -16,6 +16,10 @@ public class DoctorProfileDto : UserDto
 
     public decimal ConsultationFee { get; set; }
 
+    public decimal AverageRating { get; set; }
+
+    public int ReviewCount { get; set; }
+
     public List<ScheduleDto> Schedules { get; set; } = new();
 
     public List<SpecializationDto> Specializations { get; set; } = new();

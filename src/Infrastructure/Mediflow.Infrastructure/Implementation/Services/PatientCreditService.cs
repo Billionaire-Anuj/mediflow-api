@@ -85,15 +85,8 @@ public class PatientCreditService(
         }
 
         var amount = Math.Round(response.TotalAmount / 100m, 2);
-        var pending = GetPendingTopup(patient.Id, ProviderKhalti, request.Pidx);
-
-        if (pending == null || pending.Amount != amount)
-        {
-            throw new BadRequestException("Payment amount does not match the requested topup.");
-        }
 
         ApplyCredits(patient, amount, request.Pidx);
-        DeletePendingTopup(patient.Id, ProviderKhalti, request.Pidx);
 
         return true;
     }
@@ -184,15 +177,7 @@ public class PatientCreditService(
             throw new BadRequestException("Unable to read payment amount.");
         }
 
-        var pending = GetPendingTopup(patient.Id, ProviderEsewa, transactionUuid);
-
-        if (pending == null || pending.Amount != paidAmount)
-        {
-            throw new BadRequestException("Payment amount does not match the requested topup.");
-        }
-
         ApplyCredits(patient, paidAmount, transactionCode);
-        DeletePendingTopup(patient.Id, ProviderEsewa, transactionUuid);
 
         return Task.FromResult(true);
     }
@@ -249,18 +234,6 @@ public class PatientCreditService(
             Amount = amount,
             Provider = provider
         });
-    }
-
-    private CreditTopupConfiguration? GetPendingTopup(Guid userId, string provider, string paymentIndex)
-    {
-        var key = BuildTopupKey(provider, paymentIndex);
-        return userPropertyService.GetProperty<CreditTopupConfiguration>(userId, key);
-    }
-
-    private void DeletePendingTopup(Guid userId, string provider, string paymentIndex)
-    {
-        var key = BuildTopupKey(provider, paymentIndex);
-        userPropertyService.DeleteProperty(userId, key);
     }
 
     private static string BuildTopupKey(string provider, string paymentIndex)

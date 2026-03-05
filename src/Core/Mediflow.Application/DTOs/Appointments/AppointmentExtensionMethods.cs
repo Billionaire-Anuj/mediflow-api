@@ -25,6 +25,8 @@ public static class AppointmentExtensionMethods
             IsPaidViaGateway = appointment.IsPaidViaGateway,
             CancellationReason = appointment.CancellationReason,
             IsPaidViaOfflineMedium = appointment.IsPaidViaOfflineMedium,
+            HasReview = appointment.Review != null,
+            ReviewRating = appointment.Review?.Rating,
             Doctor = (appointment.Doctor ?? User.Default).ToDoctorProfileDto(),
             Timeslot = (appointment.Timeslot ?? Timeslot.Default).ToTimeslotDto(),
             Patient = (appointment.Patient ?? User.Default).ToPatientProfileDto(),

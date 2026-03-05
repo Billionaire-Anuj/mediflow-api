@@ -37,6 +37,8 @@ public class ApplicationDbContext(
     #region Appointments
     public DbSet<Appointment> Appointments { get; set; }
 
+    public DbSet<DoctorReview> DoctorReviews { get; set; }
+
     public DbSet<AppointmentDiagnostics> AppointmentDiagnostics { get; set; }
 
     public DbSet<AppointmentDiagnosticTestResult> AppointmentDiagnosticTestResults { get; set; }
@@ -111,6 +113,11 @@ public class ApplicationDbContext(
     #region Configurations
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured)
+        {
+            return;
+        }
+
         var basePath = AppContext.BaseDirectory;
 
         var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";

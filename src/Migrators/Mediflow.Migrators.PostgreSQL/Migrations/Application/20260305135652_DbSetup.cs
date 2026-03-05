@@ -837,6 +837,65 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 });
 
             migrationBuilder.CreateTable(
+                name: "DoctorReviews",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AppointmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DoctorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PatientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    Review = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DoctorReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "Appointments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Users_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Users_DeletedBy",
+                        column: x => x.DeletedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Users_DoctorId",
+                        column: x => x.DoctorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Users_LastModifiedBy",
+                        column: x => x.LastModifiedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DoctorReviews_Users_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MedicalRecords",
                 columns: table => new
                 {
@@ -1167,11 +1226,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 column: "Status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_BookedDate",
-                table: "Appointments",
-                column: "BookedDate");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_CreatedBy",
                 table: "Appointments",
                 column: "CreatedBy");
@@ -1195,11 +1249,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 name: "IX_Appointments_PatientId",
                 table: "Appointments",
                 column: "PatientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Appointments_Status",
-                table: "Appointments",
-                column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_TimeslotId",
@@ -1294,6 +1343,37 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                 table: "DoctorProfiles",
                 column: "LicenseNumber",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_AppointmentId",
+                table: "DoctorReviews",
+                column: "AppointmentId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_CreatedBy",
+                table: "DoctorReviews",
+                column: "CreatedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_DeletedBy",
+                table: "DoctorReviews",
+                column: "DeletedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_DoctorId",
+                table: "DoctorReviews",
+                column: "DoctorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_LastModifiedBy",
+                table: "DoctorReviews",
+                column: "LastModifiedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoctorReviews_PatientId",
+                table: "DoctorReviews",
+                column: "PatientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DoctorSpecializations_CreatedBy",
@@ -1582,6 +1662,9 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
 
             migrationBuilder.DropTable(
                 name: "DoctorProfiles");
+
+            migrationBuilder.DropTable(
+                name: "DoctorReviews");
 
             migrationBuilder.DropTable(
                 name: "DoctorSpecializations");

@@ -25,6 +25,8 @@ public interface IApplicationDbContext : IScopedService
     #region Appointments
     DbSet<Appointment> Appointments { get; set; }
 
+    DbSet<DoctorReview> DoctorReviews { get; set; }
+
     DbSet<AppointmentDiagnostics> AppointmentDiagnostics { get; set; }
 
     DbSet<AppointmentDiagnosticTestResult> AppointmentDiagnosticTestResults { get; set; }

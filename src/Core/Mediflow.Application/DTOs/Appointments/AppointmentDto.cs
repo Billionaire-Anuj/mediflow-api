@@ -35,6 +35,10 @@ public class AppointmentDto : BaseDto
 
     public string? CancellationReason { get; set; }
 
+    public bool HasReview { get; set; }
+
+    public int? ReviewRating { get; set; }
+
     public MedicalRecordDto MedicalRecords { get; set; } = new();
 
     public List<AppointmentMedicationsDto> Medications { get; set; } = new();

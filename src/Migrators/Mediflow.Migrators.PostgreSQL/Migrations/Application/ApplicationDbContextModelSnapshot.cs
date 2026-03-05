@@ -97,8 +97,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookedDate");
-
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("DeletedBy");
@@ -108,8 +106,6 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.HasIndex("LastModifiedBy");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("Status");
 
                     b.HasIndex("TimeslotId")
                         .IsUnique();
@@ -699,6 +695,67 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                         .IsUnique();
 
                     b.ToTable("DoctorProfiles");
+                });
+
+            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Review")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedBy");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("LastModifiedBy");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("DoctorReviews");
                 });
 
             modelBuilder.Entity("Mediflow.Domain.Entities.DoctorSpecialization", b =>
@@ -1844,6 +1901,55 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Navigation("LastModifiedUser");
                 });
 
+            modelBuilder.Entity("Mediflow.Domain.Entities.DoctorReview", b =>
+                {
+                    b.HasOne("Mediflow.Domain.Entities.Appointment", "Appointment")
+                        .WithOne("Review")
+                        .HasForeignKey("Mediflow.Domain.Entities.DoctorReview", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mediflow.Domain.Entities.User", "CreatedUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mediflow.Domain.Entities.User", "DeletedUser")
+                        .WithMany()
+                        .HasForeignKey("DeletedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mediflow.Domain.Entities.User", "Doctor")
+                        .WithMany("DoctorReviews")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mediflow.Domain.Entities.User", "LastModifiedUser")
+                        .WithMany()
+                        .HasForeignKey("LastModifiedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mediflow.Domain.Entities.User", "Patient")
+                        .WithMany("PatientReviews")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("CreatedUser");
+
+                    b.Navigation("DeletedUser");
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("LastModifiedUser");
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("Mediflow.Domain.Entities.DoctorSpecialization", b =>
                 {
                     b.HasOne("Mediflow.Domain.Entities.User", "CreatedUser")
@@ -2148,6 +2254,8 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
                     b.Navigation("AppointmentMedications");
 
                     b.Navigation("MedicalRecord");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Mediflow.Domain.Entities.AppointmentDiagnosticTests", b =>
@@ -2231,9 +2339,13 @@ namespace Mediflow.Migrators.PostgreSQL.Migrations.Application
 
                     b.Navigation("DoctorProfile");
 
+                    b.Navigation("DoctorReviews");
+
                     b.Navigation("DoctorSpecializations");
 
                     b.Navigation("PatientAppointments");
+
+                    b.Navigation("PatientReviews");
 
                     b.Navigation("Schedules");
 

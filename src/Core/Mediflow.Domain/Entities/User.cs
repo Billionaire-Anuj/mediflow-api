@@ -51,6 +51,8 @@ public class User(
     public virtual PatientCredit? Credit { get; set; }
 
     public virtual ICollection<Appointment> PatientAppointments { get; set; } = new List<Appointment>();
+
+    public virtual ICollection<DoctorReview> PatientReviews { get; set; } = new List<DoctorReview>();
     #endregion
 
     #region Pharmacits & Lab Technician Specific Navigation Properties
@@ -67,6 +69,8 @@ public class User(
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
     public virtual ICollection<DoctorSpecialization> DoctorSpecializations { get; set; } = new List<DoctorSpecialization>();
+
+    public virtual ICollection<DoctorReview> DoctorReviews { get; set; } = new List<DoctorReview>();
     #endregion
 
     public static User Default => new(Guid.Empty, Gender.Male, string.Empty, string.Empty, string.Empty, null, null, string.Empty, string.Empty);

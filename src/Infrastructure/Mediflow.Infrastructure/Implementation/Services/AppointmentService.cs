@@ -56,6 +56,7 @@ public class AppointmentService(
             .Include(x => x.Patient)
                 .ThenInclude(x => x!.Credit)
             .Include(x => x.Timeslot)
+            .Include(x => x.Review)
             .Include(x => x.MedicalRecord)
             .Include(x => x.AppointmentDiagnostics)
                 .ThenInclude(x => x.LabTechnician)
@@ -124,6 +125,7 @@ public class AppointmentService(
             .Include(x => x.Patient)
                 .ThenInclude(x => x!.Credit)
             .Include(x => x.Timeslot)
+            .Include(x => x.Review)
             .Include(x => x.MedicalRecord)
             .Include(x => x.AppointmentDiagnostics)
                 .ThenInclude(x => x.LabTechnician)
@@ -164,6 +166,7 @@ public class AppointmentService(
             .Include(x => x.Patient)
                 .ThenInclude(x => x!.Credit)
             .Include(x => x.Timeslot)
+            .Include(x => x.Review)
             .Include(x => x.MedicalRecord)
             .Include(x => x.AppointmentDiagnostics)
                 .ThenInclude(x => x.LabTechnician)
@@ -439,6 +442,60 @@ public class AppointmentService(
         }
 
         appointmentModel.MarkCompleted();
+
+        applicationDbContext.SaveChanges();
+    }
+
+    public void PayAppointmentWithCredits(Guid appointmentId)
+    {
+        var userId = applicationUserService.GetUserId;
+
+        var patient = applicationDbContext.Users
+            .Include(x => x.Role)
+            .Include(x => x.Credit)
+            .FirstOrDefault(x => x.Id == userId)
+            ?? throw new NotFoundException("Patient not found.");
+
+        if (patient.Role?.Id.ToString() != Constants.Roles.Patient.Id)
+        {
+            throw new BadRequestException("Only patients can pay with credits.");
+        }
+
+        var appointment = applicationDbContext.Appointments
+            .FirstOrDefault(x => x.Id == appointmentId)
+            ?? throw new NotFoundException($"Appointment with the identifier of {appointmentId} could not be found.");
+
+        if (appointment.PatientId != userId)
+        {
+            throw new ForbiddenException("You can only pay for your own appointments.");
+        }
+
+        if (appointment.Status == AppointmentStatus.Canceled)
+        {
+            throw new BadRequestException("Canceled appointments cannot be paid.");
+        }
+
+        if (appointment.IsPaidViaGateway || appointment.IsPaidViaOfflineMedium)
+        {
+            throw new BadRequestException("This appointment has already been paid.");
+        }
+
+        if (appointment.Fee <= 0)
+        {
+            appointment.MarkPaidViaGateway();
+            applicationDbContext.SaveChanges();
+            return;
+        }
+
+        var credit = patient.Credit ?? throw new BadRequestException("No credits are available.");
+
+        if (credit.CreditPoints < appointment.Fee)
+        {
+            throw new BadRequestException("Insufficient credits to complete this payment.");
+        }
+
+        credit.DeductCredits(appointment.Fee, $"APPT-{appointment.Id:N}");
+        appointment.MarkPaidViaGateway();
 
         applicationDbContext.SaveChanges();
     }
