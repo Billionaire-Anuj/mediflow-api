@@ -5,6 +5,7 @@ using Mediflow.Application.DTOs.Users;
 using Mediflow.Application.Common.Response;
 using Mediflow.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
+using Mediflow.Domain.Common;
 
 namespace Mediflow.API.Controllers;
 
@@ -97,6 +98,19 @@ public class UserController(IUserService userService) : BaseController<UserContr
         return new ResponseDto<bool>(
             (int)HttpStatusCode.OK,
             "User successfully created.",
+            true);
+    }
+
+    [HttpPost("admin/register")]
+    [Attributes.Authorize(Constants.Roles.SuperAdmin.Name, Constants.Roles.TenantAdministrator.Name)]
+    [Documentation("RegisterUserByAdmin", "Registers a new user via admin and sends credentials by email.")]
+    public ResponseDto<bool> RegisterUserByAdmin([FromForm] RegisterUserByAdminDto user)
+    {
+        userService.RegisterUserByAdmin(user);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "User successfully registered. Credentials have been emailed.",
             true);
     }
 

@@ -28,6 +28,10 @@ public static class ConfigurationService
             .AddJsonFile(Path.Combine(configurationDirectory, "client.json"), optional: true, reloadOnChange: false)
             .AddJsonFile(Path.Combine(configurationDirectory, $"client.{environment.EnvironmentName}.json"), optional: true, reloadOnChange: false)
             .AddJsonFile(Path.Combine(configurationDirectory, "smtp.json"), optional: true, reloadOnChange: false)
-            .AddJsonFile(Path.Combine(configurationDirectory, $"smtp.{environment.EnvironmentName}.json"), optional: true, reloadOnChange: false);
+            .AddJsonFile(Path.Combine(configurationDirectory, $"smtp.{environment.EnvironmentName}.json"), optional: true, reloadOnChange: false)
+            .AddJsonFile(Path.Combine(configurationDirectory, "khalti.json"), optional: true, reloadOnChange: false)
+            .AddJsonFile(Path.Combine(configurationDirectory, $"khalti.{environment.EnvironmentName}.json"), optional: true, reloadOnChange: false)
+            .AddJsonFile(Path.Combine(configurationDirectory, "esewa.json"), optional: true, reloadOnChange: false)
+            .AddJsonFile(Path.Combine(configurationDirectory, $"esewa.{environment.EnvironmentName}.json"), optional: true, reloadOnChange: false);
     }
 }

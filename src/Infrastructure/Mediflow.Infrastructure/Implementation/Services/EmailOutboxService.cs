@@ -313,6 +313,36 @@ public class EmailOutboxService(
 
                     break;
                 }
+                case EmailProcess.AccountRegistration:
+                {
+                    var registrationEmail = JsonSerializer.Deserialize<AccountRegistrationEmailDto>(emailOutbox.PayloadJson);
+
+                    if (registrationEmail != null)
+                    {
+                        var userModel = await applicationDbContext.Users.FindAsync(registrationEmail.UserId)
+                                            ?? throw new NotFoundException($"User with identifier '{registrationEmail.UserId}' not found.");
+
+                        var applicationUserModel = await applicationDbContext.Users.FindAsync(registrationEmail.ApplicationUserId)
+                                                        ?? throw new NotFoundException($"Application user with identifier '{registrationEmail.ApplicationUserId}' not found.");
+
+                        var applicationRoleModel = await applicationDbContext.Roles.FindAsync(applicationUserModel.RoleId)
+                                                   ?? throw new NotFoundException($"Application role with identifier '{applicationUserModel.RoleId}' not found.");
+
+                        emailModel.FullName = emailOutbox.Name;
+                        emailModel.ToEmailAddress = emailOutbox.ToEmail;
+                        emailModel.Subject = emailOutbox.Subject;
+                        emailModel.Process = EmailProcess.AccountRegistration;
+
+                        emailModel.Username = userModel.Username;
+                        emailModel.UserEmailAddress = userModel.EmailAddress;
+                        emailModel.TemporaryPassword = registrationEmail.Password;
+                        emailModel.ApplicationUserName = applicationUserModel.Name;
+                        emailModel.ApplicationRoleName = applicationRoleModel.Name;
+                        emailModel.SupportEmail = "support@mediflow.com";
+                    }
+
+                    break;
+                }
 
                 default:
                     throw new NotSupportedException($"Email process '{emailOutbox.Process}' is not supported in the outbox handler.");

@@ -58,6 +58,9 @@
         <Content Update="Configurations\database.Staging.json">
           <DependentUpon>database.json</DependentUpon>
         </Content>
+        <Content Update="Configurations\esewa.Development.json">
+          <DependentUpon>esewa.json</DependentUpon>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

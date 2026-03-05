@@ -114,6 +114,10 @@ public static class InfrastructureServices
         services.Configure<ClientSettings>(configuration.GetSection(nameof(ClientSettings)));
 
         services.Configure<DatabaseSettings>(configuration.GetSection(nameof(DatabaseSettings)));
+
+        services.Configure<KhaltiSettings>(configuration.GetSection(nameof(KhaltiSettings)));
+
+        services.Configure<EsewaSettings>(configuration.GetSection(nameof(EsewaSettings)));
         #endregion
 
         #region CORS Configuration
@@ -129,6 +133,10 @@ public static class InfrastructureServices
         // TODO: Should we define a new IHostedService interface for background hosted services and register it automatically?.
         // TODO: We might as well separate the hosted background services from the REST API exposed services.
         services.AddTransient<IEmailOutboxService, EmailOutboxService>();
+        #endregion
+
+        #region Registration of Payment Services
+        services.AddTransient<IPatientCreditService, PatientCreditService>();
         #endregion
     }
     

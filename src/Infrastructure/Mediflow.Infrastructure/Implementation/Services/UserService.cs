@@ -158,6 +158,68 @@ public class UserService(
         applicationDbContext.SaveChanges();
     }
 
+    public void RegisterUserByAdmin(RegisterUserByAdminDto user)
+    {
+        var duplicateUser = applicationDbContext.Users.FirstOrDefault(x =>
+            x.Username == user.Username ||
+            x.EmailAddress == user.EmailAddress ||
+            x.PhoneNumber == user.PhoneNumber);
+
+        if (duplicateUser != null)
+        {
+            throw new BadRequestException("The following user with the specified username, phone number or email address already exists.");
+        }
+
+        var role = applicationDbContext.Roles
+                   .FirstOrDefault(x => x.Id == user.RoleId)
+                   ?? throw new NotFoundException("The respective role with the specified identifier was not found.");
+
+        var generatedPassword = PasswordExtensionMethods.GeneratePassword();
+        var passwordHash = generatedPassword.Hash();
+
+        var asset = user.ProfileImage != null ? fileService.UploadDocument(user.ProfileImage, UserImagesFilePath) : null;
+
+        var userModel = new User(
+            role.Id,
+            user.Gender,
+            user.Name,
+            user.Username,
+            user.EmailAddress,
+            user.Address,
+            asset?.ToAssetModel(),
+            passwordHash,
+            user.PhoneNumber);
+
+        applicationDbContext.Users.Add(userModel);
+
+        applicationDbContext.SaveChanges();
+
+        var applicationUserIdentifier = applicationUserService.GetUserId;
+
+        var applicationUser = applicationDbContext.Users
+                              .FirstOrDefault(x => x.Id == applicationUserIdentifier)
+                              ?? throw new NotFoundException($"User with identifier '{applicationUserIdentifier}' was not found.");
+
+        var emailModel = new AccountRegistrationEmailDto
+        {
+            UserId = userModel.Id,
+            ApplicationUserId = applicationUser.Id,
+            Password = generatedPassword
+        };
+
+        var outbox = new EmailOutbox(
+            userModel.EmailAddress,
+            userModel.Name,
+            "Account Registered",
+            EmailProcess.AccountRegistration,
+            JsonSerializer.Serialize(emailModel)
+        );
+
+        applicationDbContext.EmailOutboxes.Add(outbox);
+
+        applicationDbContext.SaveChanges();
+    }
+
     public void UpdateUser(Guid userId, UpdateUserDto user)
     {
         if (userId != user.Id)

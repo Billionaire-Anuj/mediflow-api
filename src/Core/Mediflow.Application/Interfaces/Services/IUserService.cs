@@ -36,6 +36,8 @@ public interface IUserService : ITransientService
 
     void RegisterUser(RegisterUserDto user);
 
+    void RegisterUserByAdmin(RegisterUserByAdminDto user);
+
     void UpdateUser(Guid userId, UpdateUserDto user);
     
     void ResetPassword(Guid userId);

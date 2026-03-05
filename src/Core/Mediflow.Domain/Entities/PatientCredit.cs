@@ -15,4 +15,15 @@ public class PatientCredit(Guid patientId, decimal creditPoints, string paymentI
     public static PatientCredit Default => new(Guid.Empty, 0m, string.Empty);
 
     public virtual User? Patient { get; set; }
+
+    public void AddCredits(decimal credits, string paymentIndex)
+    {
+        if (credits <= 0)
+        {
+            return;
+        }
+
+        CreditPoints += credits;
+        PaymentIndex = paymentIndex;
+    }
 }

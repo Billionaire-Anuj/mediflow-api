@@ -294,6 +294,18 @@ smtp.Development.json
 smtp.Staging.json
 smtp.Production.json
 
+!khalti.json
+!khalti.example.json
+khalti.Development.json
+khalti.Staging.json
+khalti.Production.json
+
+!esewa.json
+!esewa.example.json
+esewa.Development.json
+esewa.Staging.json
+esewa.Production.json
+
 # Docker Files
 !docker-compose.yml
 !docker-compose.example.yml
