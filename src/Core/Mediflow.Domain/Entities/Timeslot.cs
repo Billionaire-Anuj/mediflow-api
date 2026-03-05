@@ -20,7 +20,7 @@ public class Timeslot(Guid scheduleId, DateOnly date, TimeOnly startTime, TimeOn
 
     public virtual Schedule? Schedule { get; set; }
 
-    public virtual Appointment? Appointment { get; set; }
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public void MarkBooked()
     {

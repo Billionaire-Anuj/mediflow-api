@@ -158,6 +158,70 @@ public class UserService(
         applicationDbContext.SaveChanges();
     }
 
+    public Guid RegisterPatientByDoctor(RegisterPatientByDoctorDto user)
+    {
+        var doctorId = applicationUserService.GetUserId;
+
+        var doctor = applicationDbContext.Users
+            .Include(x => x.Role)
+            .FirstOrDefault(x => x.Id == doctorId)
+            ?? throw new NotFoundException($"User with identifier '{doctorId}' was not found.");
+
+        if (doctor.Role?.Id.ToString() != Constants.Roles.Doctor.Id)
+            throw new BadRequestException("Only doctors can register patients.");
+
+        var duplicateUser = applicationDbContext.Users.FirstOrDefault(x =>
+            x.Username == user.Username ||
+            x.EmailAddress == user.EmailAddress ||
+            x.PhoneNumber == user.PhoneNumber);
+
+        if (duplicateUser != null)
+            throw new BadRequestException("The following user with the specified username, phone number or email address already exists.");
+
+        var role = applicationDbContext.Roles
+                   .FirstOrDefault(x => x.Id.ToString() == Constants.Roles.Patient.Id)
+                   ?? throw new NotFoundException("The patient role could not be found.");
+
+        var generatedPassword = PasswordExtensionMethods.GeneratePassword();
+        var passwordHash = generatedPassword.Hash();
+
+        var asset = user.ProfileImage != null ? fileService.UploadDocument(user.ProfileImage, UserImagesFilePath) : null;
+
+        var userModel = new User(
+            role.Id,
+            user.Gender,
+            user.Name,
+            user.Username,
+            user.EmailAddress,
+            user.Address,
+            asset?.ToAssetModel(),
+            passwordHash,
+            user.PhoneNumber);
+
+        applicationDbContext.Users.Add(userModel);
+        applicationDbContext.SaveChanges();
+
+        var emailModel = new AccountRegistrationEmailDto
+        {
+            UserId = userModel.Id,
+            ApplicationUserId = doctor.Id,
+            Password = generatedPassword
+        };
+
+        var outbox = new EmailOutbox(
+            userModel.EmailAddress,
+            userModel.Name,
+            "Account Registered",
+            EmailProcess.AccountRegistration,
+            JsonSerializer.Serialize(emailModel)
+        );
+
+        applicationDbContext.EmailOutboxes.Add(outbox);
+        applicationDbContext.SaveChanges();
+
+        return userModel.Id;
+    }
+
     public void RegisterUserByAdmin(RegisterUserByAdminDto user)
     {
         var duplicateUser = applicationDbContext.Users.FirstOrDefault(x =>

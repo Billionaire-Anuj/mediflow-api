@@ -227,6 +227,12 @@ public class AppointmentDiagnosticsService(
     {
         var appointmentDiagnosticTest = GetAppointmentDiagnosticTestForLab(appointmentDiagnosticTestId);
 
+        if (appointmentDiagnosticTest.DiagnosticReport != null)
+            throw new BadRequestException("A diagnostic report has already been uploaded for this test.");
+
+        if (appointmentDiagnosticTest.AppointmentDiagnosticTestResult != null)
+            throw new BadRequestException("Results have already been submitted for this test.");
+
         var uploadedReport = fileService.UploadDocument(report.Report, DiagnosticReportsFilePath);
 
         appointmentDiagnosticTest.AttachDiagnosticReport(uploadedReport.ToAssetModel());
@@ -243,6 +249,9 @@ public class AppointmentDiagnosticsService(
 
         var appointmentDiagnosticTest = GetAppointmentDiagnosticTestForLab(appointmentDiagnosticTestId);
 
+        if (appointmentDiagnosticTest.DiagnosticReport != null)
+            throw new BadRequestException("A diagnostic report has already been uploaded for this test.");
+
         if (appointmentDiagnosticTest.AppointmentDiagnosticTestResult == null)
         {
             var resultModel = new AppointmentDiagnosticTestResult(
@@ -258,13 +267,7 @@ public class AppointmentDiagnosticsService(
         }
         else
         {
-            appointmentDiagnosticTest.AppointmentDiagnosticTestResult.Update(
-                result.Value,
-                result.Unit,
-                result.UpperRange,
-                result.LowerRange,
-                result.Interpretation
-            );
+            throw new BadRequestException("Results have already been submitted for this test.");
         }
 
         applicationDbContext.SaveChanges();

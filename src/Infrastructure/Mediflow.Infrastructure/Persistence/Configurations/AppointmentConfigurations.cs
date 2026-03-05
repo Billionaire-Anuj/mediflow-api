@@ -78,8 +78,8 @@ public sealed class AppointmentConfigurations : IEntityTypeConfiguration<Appoint
 
         builder
             .HasOne(x => x.Timeslot)
-            .WithOne(x => x.Appointment)
-            .HasForeignKey<Appointment>(x => x.TimeslotId)
+            .WithMany(x => x.Appointments)
+            .HasForeignKey(x => x.TimeslotId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder

@@ -7,12 +7,15 @@ using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Doctors.Schedules;
 using Mediflow.Application.DTOs.Doctors.Schedules.Timeslots;
 using Mediflow.Application.DTOs.Reviews;
+using Mediflow.Application.DTOs.Users;
+using Mediflow.Domain.Common;
 
 namespace Mediflow.API.Controllers;
 
 public class DoctorController(
     IDoctorService doctorService,
-    IDoctorReviewService doctorReviewService) : BaseController<DoctorController>
+    IDoctorReviewService doctorReviewService,
+    IUserService userService) : BaseController<DoctorController>
 {
     [HttpGet("profile")]
     [Documentation("GetDoctorProfile", "Retrieve the logged in doctor's profile.")]
@@ -178,5 +181,18 @@ public class DoctorController(
             (int)HttpStatusCode.OK,
             "Doctor reviews successfully fetched.",
             result);
+    }
+
+    [HttpPost("patients")]
+    [Attributes.Authorize(Constants.Roles.Doctor.Name)]
+    [Documentation("RegisterPatientByDoctor", "Registers a patient via doctor and sends credentials by email.")]
+    public ResponseDto<Guid> RegisterPatientByDoctor([FromForm] RegisterPatientByDoctorDto patient)
+    {
+        var patientId = userService.RegisterPatientByDoctor(patient);
+
+        return new ResponseDto<Guid>(
+            (int)HttpStatusCode.OK,
+            "Patient successfully created.",
+            patientId);
     }
 }

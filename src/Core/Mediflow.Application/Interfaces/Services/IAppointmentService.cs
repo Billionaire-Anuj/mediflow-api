@@ -35,6 +35,8 @@ public interface IAppointmentService : ITransientService
 
     void BookAppointment(CreateAppointmentDto appointment);
 
+    void BookAppointmentByDoctor(CreateAppointmentByDoctorDto appointment);
+
     void UpdateAppointment(Guid appointmentId, UpdateAppointmentDto appointment);
 
     void CancelAppointment(Guid appointmentId, CancelAppointmentDto appointment);

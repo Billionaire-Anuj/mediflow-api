@@ -223,6 +223,9 @@ public class AppointmentService(
         if (timeslot.Schedule == null || timeslot.Schedule.DoctorId != doctor.Id)
             throw new BadRequestException("The selected timeslot does not belong to the selected doctor.");
 
+        if (applicationDbContext.Appointments.Any(x => x.TimeslotId == timeslot.Id && x.Status != AppointmentStatus.Canceled))
+            throw new BadRequestException("The selected timeslot is already booked.");
+
         var fee = doctor.DoctorProfile?.ConsultationFee ?? 0m;
 
         var appointmentModel = new Appointment(
@@ -240,6 +243,62 @@ public class AppointmentService(
 
         timeslot.MarkBooked();
 
+        applicationDbContext.Timeslots.Update(timeslot);
+
+        applicationDbContext.SaveChanges();
+    }
+
+    public void BookAppointmentByDoctor(CreateAppointmentByDoctorDto appointment)
+    {
+        var doctorId = applicationUserService.GetUserId;
+
+        var doctor = applicationDbContext.Users
+            .Include(x => x.Role)
+            .Include(x => x.DoctorProfile)
+            .FirstOrDefault(x => x.Id == doctorId)
+            ?? throw new NotFoundException($"Doctor with the identifier of {doctorId} could not be found.");
+
+        if (doctor.Role?.Id.ToString() != Constants.Roles.Doctor.Id)
+            throw new BadRequestException("Only doctors can book appointments for patients.");
+
+        var patient = applicationDbContext.Users
+            .Include(x => x.Role)
+            .FirstOrDefault(x => x.Id == appointment.PatientId)
+            ?? throw new NotFoundException($"Patient with the identifier of {appointment.PatientId} could not be found.");
+
+        if (patient.Role?.Id.ToString() != Constants.Roles.Patient.Id)
+            throw new BadRequestException("The selected user is not a patient.");
+
+        var timeslot = applicationDbContext.Timeslots
+            .Include(x => x.Schedule)
+            .FirstOrDefault(x => x.Id == appointment.TimeslotId)
+            ?? throw new NotFoundException($"Timeslot with the identifier of {appointment.TimeslotId} could not be found.");
+
+        if (timeslot.IsBooked)
+            throw new BadRequestException("The selected timeslot is already booked.");
+
+        if (timeslot.Schedule == null || timeslot.Schedule.DoctorId != doctor.Id)
+            throw new BadRequestException("The selected timeslot does not belong to the doctor.");
+
+        if (applicationDbContext.Appointments.Any(x => x.TimeslotId == timeslot.Id && x.Status != AppointmentStatus.Canceled))
+            throw new BadRequestException("The selected timeslot is already booked.");
+
+        var fee = doctor.DoctorProfile?.ConsultationFee ?? 0m;
+
+        var appointmentModel = new Appointment(
+            doctor.Id,
+            patient.Id,
+            DateTime.Now,
+            timeslot.Id,
+            null,
+            AppointmentStatus.Scheduled,
+            appointment.Notes,
+            appointment.Symptoms,
+            fee);
+
+        applicationDbContext.Appointments.Add(appointmentModel);
+
+        timeslot.MarkBooked();
         applicationDbContext.Timeslots.Update(timeslot);
 
         applicationDbContext.SaveChanges();
@@ -275,6 +334,12 @@ public class AppointmentService(
 
             if (newTimeslot.Schedule == null || newTimeslot.Schedule.DoctorId != appointmentModel.DoctorId)
                 throw new BadRequestException("The selected timeslot does not belong to the doctor.");
+
+            if (applicationDbContext.Appointments.Any(x =>
+                    x.TimeslotId == newTimeslot.Id &&
+                    x.Id != appointmentModel.Id &&
+                    x.Status != AppointmentStatus.Canceled))
+                throw new BadRequestException("The selected timeslot is already booked.");
 
             if (appointmentModel.Timeslot != null)
             {
@@ -316,6 +381,45 @@ public class AppointmentService(
 
         if (!isDoctor && !isPatient)
             throw new BadRequestException("You can only cancel your own appointments.");
+
+        var refundPercentage = 0m;
+        if (appointmentModel.Timeslot != null)
+        {
+            var bookingDateTime = appointmentModel.Timeslot.Date.ToDateTime(appointmentModel.Timeslot.StartTime);
+            var now = DateTime.Now;
+
+            if (now.Date == bookingDateTime.Date)
+            {
+                refundPercentage = 0m;
+            }
+            else if (now <= bookingDateTime.AddDays(-2))
+            {
+                refundPercentage = 100m;
+            }
+            else if (now < bookingDateTime)
+            {
+                refundPercentage = 50m;
+            }
+        }
+
+        var refundAmount = Math.Round(appointmentModel.Fee * (refundPercentage / 100m), 2);
+
+        if (refundAmount > 0 && appointmentModel.IsPaidViaGateway)
+        {
+            var patient = applicationDbContext.Users
+                .Include(x => x.Credit)
+                .FirstOrDefault(x => x.Id == appointmentModel.PatientId)
+                ?? throw new NotFoundException("Patient not found.");
+
+            var credit = patient.Credit;
+            if (credit == null)
+            {
+                credit = new PatientCredit(patient.Id, 0m, string.Empty);
+                applicationDbContext.PatientCredits.Add(credit);
+            }
+
+            credit.AddCredits(refundAmount, $"REFUND-APPT-{appointmentModel.Id:N}");
+        }
 
         appointmentModel.Cancel(appointment.CancellationReason, DateTime.Now);
 

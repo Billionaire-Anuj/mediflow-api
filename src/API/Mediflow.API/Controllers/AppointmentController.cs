@@ -6,6 +6,7 @@ using Mediflow.Application.Common.Response;
 using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.DTOs.Reviews;
+using Mediflow.Domain.Common;
 
 namespace Mediflow.API.Controllers;
 
@@ -91,6 +92,19 @@ public class AppointmentController(
     public ResponseDto<bool> BookAppointment([FromBody] CreateAppointmentDto appointment)
     {
         appointmentService.BookAppointment(appointment);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Appointment successfully booked.",
+            true);
+    }
+
+    [HttpPost("doctor")]
+    [Attributes.Authorize(Constants.Roles.Doctor.Name)]
+    [Documentation("BookAppointmentByDoctor", "Books a new appointment for a patient by doctor.")]
+    public ResponseDto<bool> BookAppointmentByDoctor([FromBody] CreateAppointmentByDoctorDto appointment)
+    {
+        appointmentService.BookAppointmentByDoctor(appointment);
 
         return new ResponseDto<bool>(
             (int)HttpStatusCode.OK,
