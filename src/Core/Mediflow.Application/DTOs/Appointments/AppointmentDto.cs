@@ -39,7 +39,7 @@ public class AppointmentDto : BaseDto
 
     public int? ReviewRating { get; set; }
 
-    public MedicalRecordDto MedicalRecords { get; set; } = new();
+    public MedicalRecordDto? MedicalRecords { get; set; } = new();
 
     public List<AppointmentMedicationsDto> Medications { get; set; } = new();
 

@@ -61,6 +61,21 @@
         <Content Update="Configurations\esewa.Development.json">
           <DependentUpon>esewa.json</DependentUpon>
         </Content>
+        <Content Update="Configurations\esewa.Production.json">
+          <DependentUpon>esewa.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\esewa.Staging.json">
+          <DependentUpon>esewa.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\khalti.Development.json">
+          <DependentUpon>khalti.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\khalti.Production.json">
+          <DependentUpon>khalti.json</DependentUpon>
+        </Content>
+        <Content Update="Configurations\khalti.Staging.json">
+          <DependentUpon>khalti.json</DependentUpon>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

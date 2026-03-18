@@ -20,4 +20,17 @@ public class DoctorRecommendationController(IDoctorRecommendationService doctorR
             "Doctor recommendations successfully generated.",
             result);
     }
+
+    [HttpPost("assessment")]
+    [Documentation("GetDoctorRecommendationsFromAssessment", "Recommend doctors based on clinical assessment inputs.")]
+    public ResponseDto<DoctorRecommendationResultDto> GetDoctorRecommendationsFromAssessment(
+        [FromBody] DoctorRecommendationAssessmentDto assessment)
+    {
+        var result = doctorRecommendationService.GetRecommendations(assessment);
+
+        return new ResponseDto<DoctorRecommendationResultDto>(
+            (int)HttpStatusCode.OK,
+            "Doctor recommendations successfully generated.",
+            result);
+    }
 }

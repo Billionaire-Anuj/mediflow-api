@@ -30,7 +30,7 @@ public static class AppointmentExtensionMethods
             Doctor = (appointment.Doctor ?? User.Default).ToDoctorProfileDto(),
             Timeslot = (appointment.Timeslot ?? Timeslot.Default).ToTimeslotDto(),
             Patient = (appointment.Patient ?? User.Default).ToPatientProfileDto(),
-            MedicalRecords = (appointment.MedicalRecord ?? MedicalRecord.Default).ToMedicalRecordDto(),
+            MedicalRecords = appointment.MedicalRecord?.ToMedicalRecordDto(),
             Medications = appointment.AppointmentMedications.Select(x => x.ToAppointmentMedicationsDto()).ToList(),
             Diagnostics = appointment.AppointmentDiagnostics.Select(x => x.ToAppointmentDiagnosticsDto()).ToList(),
         };

@@ -9,4 +9,6 @@ public interface IDoctorRecommendationService : ITransientService
         string query,
         string? city = null,
         int limit = 5);
+
+    DoctorRecommendationResultDto GetRecommendations(DoctorRecommendationAssessmentDto assessment);
 }
