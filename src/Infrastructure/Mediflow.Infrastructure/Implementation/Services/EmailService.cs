@@ -130,6 +130,15 @@ public class EmailService(IWebHostEnvironment webHostEnvironment) : IEmailServic
                 result.Add(new KeyValuePair<string, string>("{$applicationRoleName}", email.ApplicationRoleName));
                 result.Add(new KeyValuePair<string, string>("{$supportEmail}", email.SupportEmail));
                 break;
+
+            case EmailProcess.SecurityNotification:
+                result.Add(new KeyValuePair<string, string>("{$date}", DateTime.Now.ToString("dd MMMM yyyy")));
+                result.Add(new KeyValuePair<string, string>("{$year}", DateTime.Now.ToString("yyyy")));
+                result.Add(new KeyValuePair<string, string>("{$userName}", email.Username));
+                result.Add(new KeyValuePair<string, string>("{$securityTitle}", email.Subject));
+                result.Add(new KeyValuePair<string, string>("{$securityMessage}", email.Remarks));
+                result.Add(new KeyValuePair<string, string>("{$supportEmail}", email.SupportEmail));
+                break;
         }
 
         return result;

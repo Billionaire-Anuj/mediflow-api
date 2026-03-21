@@ -6,4 +6,5 @@ public enum EmailProcess
     PasswordResetConfirmation,
     EmailConfirmation,
     AccountRegistration,
+    SecurityNotification,
 }

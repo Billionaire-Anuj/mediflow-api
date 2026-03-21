@@ -1,4 +1,5 @@
-﻿using Mediflow.Helper;
+﻿using System.Text.Json;
+using Mediflow.Helper;
 using Mediflow.Domain.Common;
 using Mediflow.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +7,12 @@ using Mediflow.Application.DTOs.Roles;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.Common.User;
 using Mediflow.Application.DTOs.Assets;
+using Mediflow.Application.DTOs.Emails;
 using Mediflow.Application.DTOs.Profiles;
 using Mediflow.Application.Interfaces.Data;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Application.Interfaces.Managers;
+using Mediflow.Domain.Common.Enum;
 using Mediflow.Application.DTOs.Authentication.Configurations._2FA;
 using UserConfigurationEnumeration = Mediflow.Domain.Common.Enum.Configurations.UserConfiguration;
 
@@ -118,6 +121,12 @@ public class ProfileService(
         applicationDbContext.Users.Update(userModel);
 
         applicationDbContext.SaveChanges();
+
+        QueueSecurityNotificationEmail(
+            userModel,
+            "Your password was changed",
+            "Your Mediflow account password was updated successfully. If you did not make this change, please contact support immediately."
+        );
     }
 
     #region 2FA Configurations
@@ -216,6 +225,12 @@ public class ProfileService(
         applicationDbContext.Users.Update(user);
 
         applicationDbContext.SaveChanges();
+
+        QueueSecurityNotificationEmail(
+            user,
+            "Two-factor authentication enabled",
+            "Two-factor authentication is now active on your Mediflow account. You will be asked for an authenticator code during future sign-ins."
+        );
     }
 
     public void DisableTwoFactorAuthentication()
@@ -237,6 +252,32 @@ public class ProfileService(
         userPropertyService.DeleteProperty(
             user.Id,
             nameof(UserConfigurationEnumeration.TWO_FACTOR_AUTHENTICATION_SETTINGS));
+
+        QueueSecurityNotificationEmail(
+            user,
+            "Two-factor authentication disabled",
+            "Two-factor authentication has been disabled on your Mediflow account. If you did not make this change, please contact support immediately."
+        );
     }
     #endregion
+
+    private void QueueSecurityNotificationEmail(User user, string subject, string message)
+    {
+        var emailModel = new SecurityNotificationEmailDto
+        {
+            UserId = user.Id,
+            Message = message
+        };
+
+        var outbox = new EmailOutbox(
+            user.EmailAddress,
+            user.Name,
+            subject,
+            EmailProcess.SecurityNotification,
+            JsonSerializer.Serialize(emailModel)
+        );
+
+        applicationDbContext.EmailOutboxes.Add(outbox);
+        applicationDbContext.SaveChanges();
+    }
 }

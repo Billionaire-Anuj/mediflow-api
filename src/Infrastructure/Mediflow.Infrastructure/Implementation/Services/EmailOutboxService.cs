@@ -343,6 +343,29 @@ public class EmailOutboxService(
 
                     break;
                 }
+                case EmailProcess.SecurityNotification:
+                {
+                    var securityNotificationEmail =
+                        JsonSerializer.Deserialize<SecurityNotificationEmailDto>(emailOutbox.PayloadJson);
+
+                    if (securityNotificationEmail != null)
+                    {
+                        var userModel = await applicationDbContext.Users.FindAsync(securityNotificationEmail.UserId)
+                                        ?? throw new NotFoundException(
+                                            $"User with identifier '{securityNotificationEmail.UserId}' not found.");
+
+                        emailModel.FullName = emailOutbox.Name;
+                        emailModel.ToEmailAddress = emailOutbox.ToEmail;
+                        emailModel.Subject = emailOutbox.Subject;
+                        emailModel.Process = EmailProcess.SecurityNotification;
+
+                        emailModel.Username = userModel.Username;
+                        emailModel.Remarks = securityNotificationEmail.Message;
+                        emailModel.SupportEmail = "support@mediflow.com";
+                    }
+
+                    break;
+                }
 
                 default:
                     throw new NotSupportedException($"Email process '{emailOutbox.Process}' is not supported in the outbox handler.");

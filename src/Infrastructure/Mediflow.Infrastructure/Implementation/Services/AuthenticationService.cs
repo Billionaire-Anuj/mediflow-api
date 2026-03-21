@@ -371,10 +371,17 @@ public class AuthenticationService(
         user.UpdatePassword(password);
 
         applicationDbContext.Users.Update(user);
+        applicationDbContext.SaveChanges();
 
         userProperty.IsVerified = true;
 
         userPropertyService.SaveProperty(user.Id, nameof(UserConfiguration.FORGOT_PASSWORD_CONFIRMATION_OTP), userProperty);
+
+        QueueSecurityNotificationEmail(
+            user,
+            "Your password was reset",
+            "We successfully updated your Mediflow account password through the forgot password flow. If this was not you, please contact support immediately."
+        );
 
         scope.Complete();
     }
@@ -571,6 +578,26 @@ public class AuthenticationService(
 
         applicationDbContext.UserLoginLogs.Update(duplicateSession);
 
+        applicationDbContext.SaveChanges();
+    }
+
+    private void QueueSecurityNotificationEmail(User user, string subject, string message)
+    {
+        var emailModel = new SecurityNotificationEmailDto
+        {
+            UserId = user.Id,
+            Message = message
+        };
+
+        var outbox = new EmailOutbox(
+            user.EmailAddress,
+            user.Name,
+            subject,
+            EmailProcess.SecurityNotification,
+            JsonSerializer.Serialize(emailModel)
+        );
+
+        applicationDbContext.EmailOutboxes.Add(outbox);
         applicationDbContext.SaveChanges();
     }
 
