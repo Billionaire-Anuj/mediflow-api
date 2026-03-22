@@ -310,7 +310,7 @@ public class AuthenticationService(
         if (!user.IsActive) 
             throw new BadRequestException("The following user has not been activated yet, please confirm with the activation with the administrator before proceeding with resetting your password.");
 
-        var verificationCode = PasswordExtensionMethods.GeneratePassword(6, false, true, true, false);
+        var verificationCode = PasswordExtensionMethods.GeneratePassword(6, false, false, true, false);
 
         var forgotPasswordConfirmationConfiguration = new ForgotPasswordConfirmationConfiguration()
         {
@@ -353,7 +353,6 @@ public class AuthenticationService(
         using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
 
         var user = applicationDbContext.Users
-                       .AsNoTracking()
                        .FirstOrDefault(x => x.EmailAddress.ToLower() == forgotPassword.EmailAddressOrUsername.ToLower() || x.Username.ToLower() == forgotPassword.EmailAddressOrUsername.ToLower())
                    ?? throw new NotFoundException("The following user has not been registered to our system.");
 
