@@ -20,6 +20,8 @@ public interface IApplicationDbContext : IScopedService
     DbSet<UserLoginLog> UserLoginLogs { get; set; }
 
     DbSet<UserProperty> UserProperties { get; set; }
+
+    DbSet<Notification> Notifications { get; set; }
     #endregion
 
     #region Appointments

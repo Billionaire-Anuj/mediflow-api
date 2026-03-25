@@ -12,7 +12,8 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 
 public class DoctorReviewService(
     IApplicationDbContext applicationDbContext,
-    IApplicationUserService applicationUserService) : IDoctorReviewService
+    IApplicationUserService applicationUserService,
+    INotificationService notificationService) : IDoctorReviewService
 {
     public void CreateDoctorReview(Guid appointmentId, CreateDoctorReviewDto review)
     {
@@ -62,6 +63,16 @@ public class DoctorReviewService(
             review.Review);
 
         applicationDbContext.DoctorReviews.Add(reviewModel);
+        applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            appointmentModel.DoctorId,
+            NotificationType.System,
+            "New patient review",
+            $"{patient.Name} left a {review.Rating}/5 review for a completed appointment.",
+            $"/doctor/appointments/{appointmentModel.Id}",
+            $"doctor-review-created:{appointmentModel.Id:N}");
+
         applicationDbContext.SaveChanges();
     }
 

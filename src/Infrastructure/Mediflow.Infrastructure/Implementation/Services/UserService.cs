@@ -18,7 +18,8 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 public class UserService(
     IFileService fileService,
     IApplicationDbContext applicationDbContext,
-    IApplicationUserService applicationUserService) : IUserService
+    IApplicationUserService applicationUserService,
+    INotificationService notificationService) : IUserService
 {
     private const string UserImagesFilePath = Constants.FilePath.UserImagesFilePath;
 
@@ -156,6 +157,16 @@ public class UserService(
         applicationDbContext.Users.Add(userModel);
 
         applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            userModel.Id,
+            NotificationType.System,
+            "Welcome to Mediflow",
+            "Your account has been created successfully.",
+            $"/{role.Name.Trim().ToLowerInvariant().Replace(" ", "-")}/dashboard",
+            $"user-welcome:{userModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
 
     public Guid RegisterPatientByDoctor(RegisterPatientByDoctorDto user)
@@ -219,6 +230,16 @@ public class UserService(
         applicationDbContext.EmailOutboxes.Add(outbox);
         applicationDbContext.SaveChanges();
 
+        notificationService.QueueNotification(
+            userModel.Id,
+            NotificationType.System,
+            "Your account is ready",
+            $"{doctor.Name} created your Mediflow patient account for you.",
+            "/patient/dashboard",
+            $"doctor-created-patient:{userModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
+
         return userModel.Id;
     }
 
@@ -280,6 +301,24 @@ public class UserService(
         );
 
         applicationDbContext.EmailOutboxes.Add(outbox);
+
+        applicationDbContext.SaveChanges();
+
+        var roleSlug = role.Name.Trim().ToLowerInvariant() switch
+        {
+            "super admin" => "admin",
+            "tenant administrator" => "admin",
+            "lab technician" => "lab",
+            _ => role.Name.Trim().ToLowerInvariant().Replace(" ", "-")
+        };
+
+        notificationService.QueueNotification(
+            userModel.Id,
+            NotificationType.System,
+            "Your account is ready",
+            $"Your {role.Name} account has been created by an administrator.",
+            $"/{roleSlug}/dashboard",
+            $"admin-created-user:{userModel.Id:N}");
 
         applicationDbContext.SaveChanges();
     }

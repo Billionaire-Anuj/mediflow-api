@@ -12,7 +12,8 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 
 public class AppointmentMedicationsService(
     IApplicationDbContext applicationDbContext,
-    IApplicationUserService applicationUserService) : IAppointmentMedicationsService
+    IApplicationUserService applicationUserService,
+    INotificationService notificationService) : IAppointmentMedicationsService
 {
     public List<AppointmentDto> GetAllAppointmentMedications(
         int pageNumber,
@@ -201,6 +202,10 @@ public class AppointmentMedicationsService(
             throw new BadRequestException("Only pharmacists can dispense medications.");
 
         var medicationsModel = applicationDbContext.AppointmentMedications
+            .Include(x => x.Appointment)
+                .ThenInclude(x => x!.Doctor)
+            .Include(x => x.Appointment)
+                .ThenInclude(x => x!.Patient)
             .FirstOrDefault(x => x.Id == appointmentMedicationsId)
             ?? throw new NotFoundException($"Appointment medications with the identifier of {appointmentMedicationsId} could not be found.");
 
@@ -211,6 +216,38 @@ public class AppointmentMedicationsService(
             throw new BadRequestException("This medications record is assigned to another pharmacist.");
 
         medicationsModel.MarkCollected(userId, DateTime.Now);
+
+        applicationDbContext.SaveChanges();
+
+        if (medicationsModel.Appointment != null)
+        {
+            var doctorName = medicationsModel.Appointment.Doctor?.Name ?? "your doctor";
+            var patientName = medicationsModel.Appointment.Patient?.Name ?? "your patient";
+
+            notificationService.QueueNotification(
+                medicationsModel.Appointment.PatientId,
+                NotificationType.Prescription,
+                "Prescription dispensed",
+                $"Your prescription from {doctorName} has been marked as dispensed.",
+                $"/patient/appointments/{medicationsModel.AppointmentId}",
+                $"patient-prescription-dispensed:{medicationsModel.Id:N}");
+
+            notificationService.QueueNotification(
+                medicationsModel.Appointment.DoctorId,
+                NotificationType.Prescription,
+                "Prescription dispensed",
+                $"Medication prescribed for {patientName} has been dispensed by the pharmacy.",
+                $"/doctor/appointments/{medicationsModel.AppointmentId}",
+                $"doctor-prescription-dispensed:{medicationsModel.Id:N}");
+        }
+
+        notificationService.QueueNotification(
+            userId,
+            NotificationType.Prescription,
+            "Prescription completed",
+            "You marked this prescription as dispensed.",
+            $"/pharmacist/prescription/{medicationsModel.Id}",
+            $"pharmacist-prescription-dispensed:{medicationsModel.Id:N}:{userId:N}");
 
         applicationDbContext.SaveChanges();
     }

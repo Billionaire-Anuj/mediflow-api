@@ -12,7 +12,8 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 
 public class AppointmentService(
     IApplicationDbContext applicationDbContext,
-    IApplicationUserService applicationUserService) : IAppointmentService
+    IApplicationUserService applicationUserService,
+    INotificationService notificationService) : IAppointmentService
 {
     public List<AppointmentDto> GetAllAppointments(
         int pageNumber,
@@ -246,6 +247,27 @@ public class AppointmentService(
         applicationDbContext.Timeslots.Update(timeslot);
 
         applicationDbContext.SaveChanges();
+
+        var appointmentStart = timeslot.Date.ToDateTime(timeslot.StartTime).ToString("MMM d, yyyy h:mm tt");
+        var doctorName = doctor.Name;
+
+        notificationService.QueueNotification(
+            patient.Id,
+            NotificationType.Appointment,
+            "Appointment booked",
+            $"Your appointment with {doctorName} has been booked for {appointmentStart}.",
+            PatientAppointmentUrl(appointmentModel.Id),
+            $"patient-appointment-booked:{appointmentModel.Id:N}");
+
+        notificationService.QueueNotification(
+            doctor.Id,
+            NotificationType.Appointment,
+            "New appointment booked",
+            $"{patient.Name} booked an appointment for {appointmentStart}.",
+            DoctorAppointmentUrl(appointmentModel.Id),
+            $"doctor-appointment-booked:{appointmentModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
 
     public void BookAppointmentByDoctor(CreateAppointmentByDoctorDto appointment)
@@ -302,6 +324,26 @@ public class AppointmentService(
         applicationDbContext.Timeslots.Update(timeslot);
 
         applicationDbContext.SaveChanges();
+
+        var appointmentStart = timeslot.Date.ToDateTime(timeslot.StartTime).ToString("MMM d, yyyy h:mm tt");
+
+        notificationService.QueueNotification(
+            patient.Id,
+            NotificationType.Appointment,
+            "Appointment scheduled for you",
+            $"{doctor.Name} scheduled your appointment for {appointmentStart}.",
+            PatientAppointmentUrl(appointmentModel.Id),
+            $"patient-appointment-booked-by-doctor:{appointmentModel.Id:N}");
+
+        notificationService.QueueNotification(
+            doctor.Id,
+            NotificationType.Appointment,
+            "Appointment added to your calendar",
+            $"You scheduled an appointment for {patient.Name} on {appointmentStart}.",
+            DoctorAppointmentUrl(appointmentModel.Id),
+            $"doctor-appointment-booked-by-doctor:{appointmentModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
 
     public void UpdateAppointment(Guid appointmentId, UpdateAppointmentDto appointment)
@@ -313,6 +355,8 @@ public class AppointmentService(
 
         var appointmentModel = applicationDbContext.Appointments
             .Include(x => x.Timeslot)
+            .Include(x => x.Doctor)
+            .Include(x => x.Patient)
             .FirstOrDefault(x => x.Id == appointment.AppointmentId)
             ?? throw new NotFoundException($"Appointment with the identifier of {appointmentId} could not be found.");
 
@@ -359,6 +403,30 @@ public class AppointmentService(
         }
 
         applicationDbContext.SaveChanges();
+
+        var updatedTimeslot = appointmentModel.Timeslot
+            ?? applicationDbContext.Timeslots.First(x => x.Id == appointmentModel.TimeslotId);
+        var appointmentStart = updatedTimeslot.Date.ToDateTime(updatedTimeslot.StartTime).ToString("MMM d, yyyy h:mm tt");
+        var doctorName = appointmentModel.Doctor?.Name ?? "your doctor";
+        var patientName = appointmentModel.Patient?.Name ?? "your patient";
+
+        notificationService.QueueNotification(
+            appointmentModel.PatientId,
+            NotificationType.Appointment,
+            "Appointment updated",
+            $"Your appointment with {doctorName} has been updated to {appointmentStart}.",
+            PatientAppointmentUrl(appointmentModel.Id),
+            $"patient-appointment-updated:{appointmentModel.Id:N}");
+
+        notificationService.QueueNotification(
+            appointmentModel.DoctorId,
+            NotificationType.Appointment,
+            "Appointment rescheduled",
+            $"{patientName}'s appointment has been updated to {appointmentStart}.",
+            DoctorAppointmentUrl(appointmentModel.Id),
+            $"doctor-appointment-updated:{appointmentModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
 
     public void CancelAppointment(Guid appointmentId, CancelAppointmentDto appointment)
@@ -370,6 +438,8 @@ public class AppointmentService(
 
         var appointmentModel = applicationDbContext.Appointments
             .Include(x => x.Timeslot)
+            .Include(x => x.Doctor)
+            .Include(x => x.Patient)
             .FirstOrDefault(x => x.Id == appointment.AppointmentId)
             ?? throw new NotFoundException($"Appointment with the identifier of {appointmentId} could not be found.");
 
@@ -430,6 +500,40 @@ public class AppointmentService(
         }
 
         applicationDbContext.SaveChanges();
+
+        var actorLabel = isDoctor ? (appointmentModel.Doctor?.Name ?? "The doctor") : "The patient";
+        var refundMessage = refundAmount <= 0
+            ? "No refund applies."
+            : $"Refunded {refundAmount:0.##} credits to the patient wallet.";
+
+        notificationService.QueueNotification(
+            appointmentModel.PatientId,
+            NotificationType.Appointment,
+            "Appointment cancelled",
+            isPatient
+                ? $"You cancelled your appointment. {refundMessage}"
+                : $"{actorLabel} cancelled your appointment. {refundMessage}",
+            PatientAppointmentUrl(appointmentModel.Id),
+            $"patient-appointment-cancelled:{appointmentModel.Id:N}");
+
+        notificationService.QueueNotification(
+            appointmentModel.DoctorId,
+            NotificationType.Appointment,
+            "Appointment cancelled",
+            isDoctor
+                ? $"You cancelled the appointment with {appointmentModel.Patient?.Name ?? "the patient"}."
+                : $"{appointmentModel.Patient?.Name ?? "The patient"} cancelled the appointment.",
+            DoctorAppointmentUrl(appointmentModel.Id),
+            $"doctor-appointment-cancelled:{appointmentModel.Id:N}");
+
+        notificationService.QueueForAdministrativeUsers(
+            NotificationType.Admin,
+            "Appointment cancelled",
+            $"{appointmentModel.Patient?.Name ?? "A patient"}'s appointment was cancelled. {refundMessage}",
+            "/admin/dashboard",
+            $"admin-appointment-cancelled:{appointmentModel.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
 
     public void ConsultAppointment(Guid appointmentId, ConsultAppointmentDto appointment)
@@ -451,6 +555,7 @@ public class AppointmentService(
             .Include(x => x.MedicalRecord)
             .Include(x => x.AppointmentDiagnostics)
             .Include(x => x.AppointmentMedications)
+            .Include(x => x.Patient)
             .FirstOrDefault(x => x.Id == appointment.AppointmentId)
             ?? throw new NotFoundException($"Appointment with the identifier of {appointmentId} could not be found.");
 
@@ -548,6 +653,58 @@ public class AppointmentService(
         appointmentModel.MarkCompleted();
 
         applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            appointmentModel.PatientId,
+            NotificationType.System,
+            "Consultation summary ready",
+            $"Your consultation summary with {doctor.Name} is now available.",
+            PatientAppointmentUrl(appointmentModel.Id),
+            $"patient-consultation-summary:{appointmentModel.Id:N}");
+
+        var diagnosticsIds = applicationDbContext.AppointmentDiagnostics
+            .Where(x => x.AppointmentId == appointmentModel.Id)
+            .Select(x => x.Id)
+            .ToList();
+
+        var labUserIds = applicationDbContext.Users
+            .Where(x => x.IsActive && x.Role != null && x.Role.Id.ToString() == Constants.Roles.LabTechnician.Id)
+            .Select(x => x.Id)
+            .ToList();
+
+        foreach (var diagnosticsId in diagnosticsIds)
+        {
+            notificationService.QueueNotifications(
+                labUserIds,
+                NotificationType.Lab,
+                "New lab request",
+                $"{appointmentModel.Patient?.Name ?? "A patient"} has a new diagnostic request ready for the lab queue.",
+                $"/lab/request/{diagnosticsId}",
+                $"lab-request-created:{diagnosticsId:N}");
+        }
+
+        var medicationIds = applicationDbContext.AppointmentMedications
+            .Where(x => x.AppointmentId == appointmentModel.Id)
+            .Select(x => x.Id)
+            .ToList();
+
+        var pharmacistUserIds = applicationDbContext.Users
+            .Where(x => x.IsActive && x.Role != null && x.Role.Id.ToString() == Constants.Roles.Pharmacist.Id)
+            .Select(x => x.Id)
+            .ToList();
+
+        foreach (var medicationId in medicationIds)
+        {
+            notificationService.QueueNotifications(
+                pharmacistUserIds,
+                NotificationType.Prescription,
+                "New prescription order",
+                $"A new prescription from {doctor.Name} is ready for pharmacy fulfillment.",
+                $"/pharmacist/prescription/{medicationId}",
+                $"pharmacy-request-created:{medicationId:N}");
+        }
+
+        applicationDbContext.SaveChanges();
     }
 
     public void PayAppointmentWithCredits(Guid appointmentId)
@@ -566,6 +723,7 @@ public class AppointmentService(
         }
 
         var appointment = applicationDbContext.Appointments
+            .Include(x => x.Doctor)
             .FirstOrDefault(x => x.Id == appointmentId)
             ?? throw new NotFoundException($"Appointment with the identifier of {appointmentId} could not be found.");
 
@@ -602,5 +760,27 @@ public class AppointmentService(
         appointment.MarkPaidViaGateway();
 
         applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            appointment.PatientId,
+            NotificationType.Appointment,
+            "Appointment payment completed",
+            $"You paid {appointment.Fee:0.##} credits for your appointment.",
+            PatientAppointmentUrl(appointment.Id),
+            $"patient-appointment-paid:{appointment.Id:N}");
+
+        notificationService.QueueNotification(
+            appointment.DoctorId,
+            NotificationType.Appointment,
+            "Appointment payment received",
+            $"{patient.Name} completed payment for their appointment.",
+            DoctorAppointmentUrl(appointment.Id),
+            $"doctor-appointment-paid:{appointment.Id:N}");
+
+        applicationDbContext.SaveChanges();
     }
+
+    private static string PatientAppointmentUrl(Guid appointmentId) => $"/patient/appointments/{appointmentId}";
+
+    private static string DoctorAppointmentUrl(Guid appointmentId) => $"/doctor/appointments/{appointmentId}";
 }

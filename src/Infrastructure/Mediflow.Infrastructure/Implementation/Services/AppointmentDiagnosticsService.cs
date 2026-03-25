@@ -15,7 +15,8 @@ namespace Mediflow.Infrastructure.Implementation.Services;
 public class AppointmentDiagnosticsService(
     IFileService fileService,
     IApplicationDbContext applicationDbContext,
-    IApplicationUserService applicationUserService) : IAppointmentDiagnosticsService
+    IApplicationUserService applicationUserService,
+    INotificationService notificationService) : IAppointmentDiagnosticsService
 {
     private const string DiagnosticReportsFilePath = Constants.FilePath.DiagnosticReportsFilePath;
 
@@ -220,6 +221,19 @@ public class AppointmentDiagnosticsService(
         diagnosticsModel.AssignLabTechnician(userId);
         diagnosticsModel.UpdateStatus(DiagnosticStatus.Scheduled);
 
+        var patientName = applicationDbContext.Appointments
+            .Where(x => x.Id == diagnosticsModel.AppointmentId)
+            .Select(x => x.Patient != null ? x.Patient.Name : "the patient")
+            .FirstOrDefault() ?? "the patient";
+
+        notificationService.QueueNotification(
+            userId,
+            NotificationType.Lab,
+            "Lab request assigned",
+            $"You are now assigned to process diagnostics for {patientName}.",
+            $"/lab/request/{diagnosticsModel.Id}",
+            $"lab-request-assigned:{diagnosticsModel.Id:N}:{userId:N}");
+
         applicationDbContext.SaveChanges();
     }
 
@@ -324,6 +338,33 @@ public class AppointmentDiagnosticsService(
         if (!completed) return;
 
         diagnosticsModel.MarkCompleted(DateTime.Now, DiagnosticStatus.Resulted);
+
+        var appointment = applicationDbContext.Appointments
+            .Include(x => x.Doctor)
+            .Include(x => x.Patient)
+            .FirstOrDefault(x => x.Id == diagnosticsModel.AppointmentId);
+
+        if (appointment != null)
+        {
+            var doctorName = appointment.Doctor?.Name ?? "your doctor";
+            var patientName = appointment.Patient?.Name ?? "your patient";
+
+            notificationService.QueueNotification(
+                appointment.PatientId,
+                NotificationType.Lab,
+                "Lab results ready",
+                $"Your lab results from the appointment with {doctorName} are now available.",
+                $"/patient/appointments/{appointment.Id}",
+                $"patient-lab-resulted:{diagnosticsModel.Id:N}");
+
+            notificationService.QueueNotification(
+                appointment.DoctorId,
+                NotificationType.Lab,
+                "Lab results available",
+                $"Diagnostic results for {patientName} are ready for review.",
+                $"/doctor/appointments/{appointment.Id}",
+                $"doctor-lab-resulted:{diagnosticsModel.Id:N}");
+        }
 
         applicationDbContext.SaveChanges();
     }

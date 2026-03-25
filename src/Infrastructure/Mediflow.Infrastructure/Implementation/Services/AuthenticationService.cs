@@ -42,7 +42,8 @@ public class AuthenticationService(
     IHttpContextAccessor httpContextAccessor,
     IUserPropertyService userPropertyService,
     IApplicationDbContext applicationDbContext,
-    ITwoFactorTokenManager twoFactorTokenManager) : IAuthenticationService
+    ITwoFactorTokenManager twoFactorTokenManager,
+    INotificationService notificationService) : IAuthenticationService
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private const string UserImagesFilePath = Constants.FilePath.UserImagesFilePath;
@@ -60,6 +61,13 @@ public class AuthenticationService(
         if (user == null)
         {
             LogLoginAttempt(login, null, LoginStatus.FailedUserNotFound);
+            notificationService.QueueForAdministrativeUsers(
+                NotificationType.Admin,
+                "Failed login attempt",
+                $"A login attempt for {login.EmailAddressOrUsername} failed because the user was not found.",
+                "/admin/audit-logs",
+                $"admin-failed-login:{login.EmailAddressOrUsername.Trim().ToLowerInvariant()}:{DateTime.Now:yyyyMMddHHmm}");
+            applicationDbContext.SaveChanges();
 
             throw new NotFoundException("The following user has not been registered to our system. Please check your email or username.");
         }
@@ -67,6 +75,13 @@ public class AuthenticationService(
         if (!user.IsActive)
         {
             LogLoginAttempt(login, user, LoginStatus.FailedInactiveUser);
+            notificationService.QueueForAdministrativeUsers(
+                NotificationType.Admin,
+                "Inactive user login blocked",
+                $"An inactive account ({user.EmailAddress}) attempted to log in.",
+                "/admin/audit-logs",
+                $"admin-inactive-login:{user.Id:N}:{DateTime.Now:yyyyMMddHHmm}");
+            applicationDbContext.SaveChanges();
 
             throw new BadRequestException("You can not log in to the system as the respective user is not active, please contact the administrator.");
         }
@@ -76,6 +91,13 @@ public class AuthenticationService(
         if (!isPasswordValid)
         {
             LogLoginAttempt(login, user, LoginStatus.FailedInvalidPassword);
+            notificationService.QueueForAdministrativeUsers(
+                NotificationType.Admin,
+                "Invalid password attempt",
+                $"An invalid password was entered for {user.EmailAddress}.",
+                "/admin/audit-logs",
+                $"admin-invalid-password:{user.Id:N}:{DateTime.Now:yyyyMMddHHmm}");
+            applicationDbContext.SaveChanges();
 
             throw new NotFoundException("Invalid password, please try again.");
         }
@@ -92,6 +114,7 @@ public class AuthenticationService(
         }
 
         LogLoginAttempt(login, user, LoginStatus.Success);
+        applicationDbContext.SaveChanges();
 
         return new AuthenticationDto()
         {
@@ -247,6 +270,16 @@ public class AuthenticationService(
         );
 
         applicationDbContext.EmailOutboxes.Add(outbox);
+
+        applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            userModel.Id,
+            NotificationType.System,
+            "Welcome to Mediflow",
+            "Your account has been created. Please verify your email address to continue.",
+            "/patient/dashboard",
+            $"patient-welcome:{userModel.Id:N}");
 
         applicationDbContext.SaveChanges();
 
@@ -456,6 +489,7 @@ public class AuthenticationService(
         var jsonWebToken = new JwtSecurityTokenHandler().WriteToken(accessToken);
 
         LogSuccessfulLogin(user, jsonWebToken);
+        applicationDbContext.SaveChanges();
 
         var userDetails = user.ToProfileDto();
 

@@ -45,6 +45,8 @@ public class User(
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
     public virtual ICollection<UserLoginLog> UserLoginLogs { get; set; } = new List<UserLoginLog>();
+
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     #endregion
 
     #region Patient Specific Navigation Properties

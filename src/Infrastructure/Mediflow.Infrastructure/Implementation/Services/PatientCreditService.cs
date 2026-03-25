@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 using Mediflow.Domain.Common;
 using Mediflow.Domain.Entities;
+using Mediflow.Domain.Common.Enum;
 using Mediflow.Application.Exceptions;
 using Mediflow.Application.DTOs.Payments;
 using Mediflow.Application.Common.User;
@@ -21,6 +22,7 @@ public class PatientCreditService(
     IApplicationDbContext applicationDbContext,
     IApplicationUserService applicationUserService,
     IUserPropertyService userPropertyService,
+    INotificationService notificationService,
     IHttpClientFactory httpClientFactory,
     IOptions<KhaltiSettings> khaltiOptions,
     IOptions<EsewaSettings> esewaOptions) : IPatientCreditService
@@ -222,6 +224,16 @@ public class PatientCreditService(
         }
 
         credit.AddCredits(amount, paymentIndex);
+        applicationDbContext.SaveChanges();
+
+        notificationService.QueueNotification(
+            patient.Id,
+            NotificationType.System,
+            "Credits added successfully",
+            $"{amount:0.##} credits were added to your wallet.",
+            "/patient/profile",
+            $"patient-credit-topup:{paymentIndex}");
+
         applicationDbContext.SaveChanges();
     }
 

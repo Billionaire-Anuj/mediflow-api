@@ -1,7 +1,9 @@
 using Mediflow.Domain.Common;
+using Hangfire;
 using Mediflow.API.Middleware;
 using Microsoft.Net.Http.Headers;
 using Mediflow.Infrastructure.Dependency;
+using Mediflow.Infrastructure.Implementation.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,5 +71,10 @@ app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+RecurringJob.AddOrUpdate<AppointmentReminderNotificationJob>(
+    "patient-appointment-reminder-notifications",
+    job => job.SendPatientAppointmentRemindersAsync(),
+    Cron.Minutely);
 
 app.Run();

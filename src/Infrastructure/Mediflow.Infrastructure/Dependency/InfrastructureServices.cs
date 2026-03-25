@@ -1,4 +1,7 @@
 using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Hangfire.SqlServer;
 using Mediflow.Helper;
 using Mediflow.Domain.Common;
 using Microsoft.Extensions.Logging;
@@ -9,6 +12,7 @@ using Mediflow.Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Mediflow.Infrastructure.Persistence;
+using Mediflow.Infrastructure.Implementation.Jobs;
 using Mediflow.Application.Interfaces.Data;
 using Mediflow.Application.Common.Permission;
 using Mediflow.Application.Interfaces.Services;
@@ -44,6 +48,28 @@ public static class InfrastructureServices
         {
             options.UseDatabase(databaseSettings.DbProvider, connectionString!);
         });
+
+        services.AddHangfire(configuration =>
+        {
+            configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings();
+
+            switch (databaseSettings.DbProvider)
+            {
+                case Constants.DbProviderKeys.Npgsql:
+                    configuration.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString));
+                    break;
+                case Constants.DbProviderKeys.SqlServer:
+                    configuration.UseSqlServerStorage(connectionString);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Database provider '{databaseSettings.DbProvider}' is not supported for Hangfire.");
+            }
+        });
+
+        services.AddHangfireServer();
         #endregion
 
         #region Registration of Services
@@ -52,6 +78,8 @@ public static class InfrastructureServices
         services.AddHttpContextAccessor();
         
         services.AddDistributedMemoryCache();
+
+        services.AddTransient<AppointmentReminderNotificationJob>();
         #endregion
 
         #region Handler of Database Migration 
@@ -122,7 +150,7 @@ public static class InfrastructureServices
 
         #region CORS Configuration
         services.EnableCors(configuration);
-        #endregion"
+        #endregion
 
         #region Registration of Background Hosted Services
         services.AddHostedService<EmailOutboxService>();

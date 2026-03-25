@@ -32,6 +32,8 @@ public class ApplicationDbContext(
     public DbSet<UserLoginLog> UserLoginLogs { get; set; }
 
     public DbSet<UserProperty> UserProperties { get; set; }
+
+    public DbSet<Notification> Notifications { get; set; }
     #endregion
 
     #region Appointments
