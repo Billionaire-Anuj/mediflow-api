@@ -17,4 +17,8 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="../../src/Infrastructure/Mediflow.Infrastructure/Mediflow.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
