@@ -12,13 +12,12 @@ public class AppointmentReminderNotificationJob(
     public Task SendPatientAppointmentRemindersAsync()
     {
         var now = DateTime.Now;
-        var windowStart = now.AddMinutes(29);
-        var windowEnd = now.AddMinutes(31);
+        var reminderWindowEnd = now.AddMinutes(31);
 
         var candidateDates = new[]
         {
-            DateOnly.FromDateTime(windowStart),
-            DateOnly.FromDateTime(windowEnd)
+            DateOnly.FromDateTime(now),
+            DateOnly.FromDateTime(reminderWindowEnd)
         };
 
         var appointments = applicationDbContext.Appointments
@@ -39,7 +38,9 @@ public class AppointmentReminderNotificationJob(
             }
 
             var appointmentStart = appointment.Timeslot.Date.ToDateTime(appointment.Timeslot.StartTime);
-            if (appointmentStart < windowStart || appointmentStart > windowEnd)
+            // Queue the reminder once the appointment falls within the next ~30 minutes.
+            // If a previous minute was missed, later job runs can still create it.
+            if (appointmentStart <= now || appointmentStart > reminderWindowEnd)
             {
                 continue;
             }

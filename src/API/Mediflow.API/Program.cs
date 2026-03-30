@@ -72,7 +72,9 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-RecurringJob.AddOrUpdate<AppointmentReminderNotificationJob>(
+var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+
+recurringJobManager.AddOrUpdate<AppointmentReminderNotificationJob>(
     "patient-appointment-reminder-notifications",
     job => job.SendPatientAppointmentRemindersAsync(),
     Cron.Minutely);

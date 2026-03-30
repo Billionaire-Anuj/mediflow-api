@@ -50,24 +50,6 @@ public sealed class NotificationConfigurations : IEntityTypeConfiguration<Notifi
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne(x => x.CreatedUser)
-            .WithMany()
-            .HasForeignKey(x => x.CreatedBy)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(x => x.LastModifiedUser)
-            .WithMany()
-            .HasForeignKey(x => x.LastModifiedBy)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(x => x.DeletedUser)
-            .WithMany()
-            .HasForeignKey(x => x.DeletedBy)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
             .HasIndex(x => x.UserId);
 
         builder
@@ -75,9 +57,6 @@ public sealed class NotificationConfigurations : IEntityTypeConfiguration<Notifi
 
         builder
             .HasIndex(x => x.Type);
-
-        builder
-            .HasIndex(x => x.CreatedAt);
 
         builder
             .HasIndex(x => new { x.UserId, x.NotificationKey })

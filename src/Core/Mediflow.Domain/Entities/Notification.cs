@@ -13,7 +13,7 @@ public class Notification(
     string notificationKey,
     bool isRead = false,
     DateTime? readAt = null
-) : AuditableEntity<Guid>
+) : BaseEntity<Guid>
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; private set; } = userId;
@@ -33,6 +33,8 @@ public class Notification(
     public DateTime? ReadAt { get; private set; } = readAt;
 
     public virtual User? User { get; set; }
+
+    public DateTime CreatedAt { get; private set; } = DateTime.Now;
 
     public static Notification Default => new(Guid.Empty, NotificationType.System, string.Empty, string.Empty, string.Empty, string.Empty);
 
