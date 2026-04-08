@@ -96,4 +96,14 @@ public class Appointment(
 
         IsPaidViaGateway = true;
     }
+
+    public void MarkPaidViaOfflineMedium()
+    {
+        if (IsPaidViaOfflineMedium)
+        {
+            return;
+        }
+
+        IsPaidViaOfflineMedium = true;
+    }
 }

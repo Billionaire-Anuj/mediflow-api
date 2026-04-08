@@ -124,6 +124,19 @@ public class AppointmentController(
             true);
     }
 
+    [HttpPatch("{appointmentId:guid}/doctor/reschedule")]
+    [Attributes.Authorize(Constants.Roles.Doctor.Name)]
+    [Documentation("RescheduleAppointmentByDoctor", "Reschedules a patient appointment by doctor.")]
+    public ResponseDto<bool> RescheduleAppointmentByDoctor([FromRoute] Guid appointmentId, [FromBody] UpdateAppointmentDto appointment)
+    {
+        appointmentService.RescheduleAppointmentByDoctor(appointmentId, appointment);
+
+        return new ResponseDto<bool>(
+            (int)HttpStatusCode.OK,
+            "Appointment successfully rescheduled.",
+            true);
+    }
+
     [HttpPatch("{appointmentId:guid}/cancel")]
     [Documentation("CancelAppointment", "Cancels a scheduled appointment.")]
     public ResponseDto<bool> CancelAppointment([FromRoute] Guid appointmentId, [FromBody] CancelAppointmentDto appointment)

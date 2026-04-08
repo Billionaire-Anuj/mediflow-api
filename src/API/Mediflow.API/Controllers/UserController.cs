@@ -48,6 +48,7 @@ public class UserController(IUserService userService) : BaseController<UserContr
     }
 
     [HttpGet("list")]
+    [Attributes.Authorize(Constants.Roles.SuperAdmin.Name, Constants.Roles.TenantAdministrator.Name)]
     [Documentation("GetAllUsersList", "Retrieve all available users in the system.")]
     public ResponseDto<List<UserDto>> GetAllUsers(
         [FromQuery] SearchAndActiveFlagQueryDto searchAndActiveFlagQuery,

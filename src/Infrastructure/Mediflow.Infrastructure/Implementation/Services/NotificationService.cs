@@ -39,7 +39,7 @@ public class NotificationService(
                 (isActive == null || isActive.Contains(x.IsActive)) &&
                 (typeIdentifiers == null || typeIdentifiers.Contains(x.Type)) &&
                 (isRead == null || x.IsRead == isRead.Value))
-            .OrderBy(x => orderBys);
+            .OrderByDescending(x => x.CreatedAt);
 
         var results = notificationModels.Select(x => x.ToNotificationDto()).ToList();
 

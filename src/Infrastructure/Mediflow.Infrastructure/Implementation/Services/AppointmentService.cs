@@ -348,6 +348,16 @@ public class AppointmentService(
 
     public void UpdateAppointment(Guid appointmentId, UpdateAppointmentDto appointment)
     {
+        UpdateAppointmentInternal(appointmentId, appointment, allowPatientUpdate: true, allowDoctorUpdate: false);
+    }
+
+    public void RescheduleAppointmentByDoctor(Guid appointmentId, UpdateAppointmentDto appointment)
+    {
+        UpdateAppointmentInternal(appointmentId, appointment, allowPatientUpdate: false, allowDoctorUpdate: true);
+    }
+
+    private void UpdateAppointmentInternal(Guid appointmentId, UpdateAppointmentDto appointment, bool allowPatientUpdate, bool allowDoctorUpdate)
+    {
         if (appointmentId != appointment.AppointmentId)
             throw new BadRequestException("Route identifier does not match payload identifier.");
 
@@ -363,8 +373,13 @@ public class AppointmentService(
         if (appointmentModel.Status != AppointmentStatus.Scheduled)
             throw new BadRequestException("Only scheduled appointments can be updated.");
 
-        if (appointmentModel.PatientId != userId)
-            throw new BadRequestException("You can only update your own appointments.");
+        var isPatient = appointmentModel.PatientId == userId;
+        var isDoctor = appointmentModel.DoctorId == userId;
+
+        var canUpdate = (allowPatientUpdate && isPatient) || (allowDoctorUpdate && isDoctor);
+
+        if (!canUpdate)
+            throw new BadRequestException("You are not allowed to update this appointment.");
 
         if (appointmentModel.TimeslotId != appointment.TimeslotId)
         {
@@ -414,7 +429,9 @@ public class AppointmentService(
             appointmentModel.PatientId,
             NotificationType.Appointment,
             "Appointment updated",
-            $"Your appointment with {doctorName} has been updated to {appointmentStart}.",
+            allowDoctorUpdate
+                ? $"{doctorName} rescheduled your appointment to {appointmentStart}."
+                : $"Your appointment with {doctorName} has been updated to {appointmentStart}.",
             PatientAppointmentUrl(appointmentModel.Id),
             $"patient-appointment-updated:{appointmentModel.Id:N}");
 
@@ -422,7 +439,9 @@ public class AppointmentService(
             appointmentModel.DoctorId,
             NotificationType.Appointment,
             "Appointment rescheduled",
-            $"{patientName}'s appointment has been updated to {appointmentStart}.",
+            allowDoctorUpdate
+                ? $"You rescheduled {patientName}'s appointment to {appointmentStart}."
+                : $"{patientName}'s appointment has been updated to {appointmentStart}.",
             DoctorAppointmentUrl(appointmentModel.Id),
             $"doctor-appointment-updated:{appointmentModel.Id:N}");
 
@@ -567,6 +586,11 @@ public class AppointmentService(
 
         if (appointmentModel.MedicalRecord != null || appointmentModel.AppointmentDiagnostics.Count != 0 || appointmentModel.AppointmentMedications.Count != 0)
             throw new BadRequestException("This appointment has already been consulted.");
+
+        if (!appointmentModel.IsPaidViaGateway)
+        {
+            appointmentModel.MarkPaidViaOfflineMedium();
+        }
 
         if (appointmentModel.MedicalRecord == null)
         {

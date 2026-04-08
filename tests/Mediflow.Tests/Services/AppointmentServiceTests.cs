@@ -1,4 +1,3 @@
-using Mediflow.Application.Common.User;
 using Mediflow.Application.DTOs.Appointments;
 using Mediflow.Application.Interfaces.Services;
 using Mediflow.Domain.Common;
@@ -42,11 +41,8 @@ public class AppointmentServiceTests
         context.Appointments.Add(appointment);
         context.SaveChanges();
 
-        var appUserService = new Mock<IApplicationUserService>();
-        appUserService.SetupGet(x => x.GetUserId).Returns(patientId);
-
         var notificationService = new Mock<INotificationService>();
-        var service = new AppointmentService(context, appUserService.Object, notificationService.Object);
+        var service = new AppointmentService(context, new TestApplicationUserService(patientId), notificationService.Object);
 
         service.CancelAppointment(appointmentId, new CancelAppointmentDto
         {
@@ -105,11 +101,8 @@ public class AppointmentServiceTests
         context.Appointments.Add(appointment);
         context.SaveChanges();
 
-        var appUserService = new Mock<IApplicationUserService>();
-        appUserService.SetupGet(x => x.GetUserId).Returns(patientId);
-
         var notificationService = new Mock<INotificationService>();
-        var service = new AppointmentService(context, appUserService.Object, notificationService.Object);
+        var service = new AppointmentService(context, new TestApplicationUserService(patientId), notificationService.Object);
 
         service.PayAppointmentWithCredits(appointmentId);
 
@@ -127,6 +120,86 @@ public class AppointmentServiceTests
                 It.Is<string>(message => message.Contains("150")),
                 $"/patient/appointments/{appointmentId}",
                 $"patient-appointment-paid:{appointmentId:N}"),
+            Times.Once);
+    }
+
+    [Fact]
+    public void UpdateAppointment_WhenDoctorOwnsAppointment_AllowsReschedulingPatientAppointment()
+    {
+        using var context = TestApplicationDbContextFactory.Create();
+
+        var patientId = Guid.NewGuid();
+        var doctorId = Guid.NewGuid();
+        var appointmentId = Guid.NewGuid();
+        var scheduleId = Guid.NewGuid();
+
+        var patient = new User(Guid.Parse(Constants.Roles.Patient.Id), Gender.Female, "Reschedule Patient", "reschedulepatient", "reschedulepatient@test.com", null, null, "hash", "9800000006");
+        patient.AssignIdentifier(patientId);
+
+        var doctor = new User(Guid.NewGuid(), Gender.Male, "Dr. Reschedule", "drreschedule", "drreschedule@test.com", null, null, "hash", "9800000007");
+        doctor.AssignIdentifier(doctorId);
+
+        var schedule = new Schedule(
+            doctorId,
+            DayOfWeek.Monday,
+            new TimeOnly(9, 0),
+            new TimeOnly(17, 0),
+            validStartDate: DateOnly.FromDateTime(DateTime.Today),
+            validEndDate: DateOnly.FromDateTime(DateTime.Today.AddDays(14)));
+        schedule.AssignIdentifier(scheduleId);
+
+        var originalSlotStart = DateTime.Now.AddDays(2).Date.AddHours(9);
+        var originalTimeslot = new Timeslot(scheduleId, DateOnly.FromDateTime(originalSlotStart), TimeOnly.FromDateTime(originalSlotStart), TimeOnly.FromDateTime(originalSlotStart.AddMinutes(30)), true);
+        originalTimeslot.AssignIdentifier(Guid.NewGuid());
+
+        var newSlotStart = DateTime.Now.AddDays(3).Date.AddHours(11);
+        var newTimeslot = new Timeslot(scheduleId, DateOnly.FromDateTime(newSlotStart), TimeOnly.FromDateTime(newSlotStart), TimeOnly.FromDateTime(newSlotStart.AddMinutes(30)));
+        newTimeslot.AssignIdentifier(Guid.NewGuid());
+
+        var appointment = new Appointment(doctorId, patientId, DateTime.Now, originalTimeslot.Id, null, AppointmentStatus.Scheduled, "Old note", "Old symptoms", 100m);
+        appointment.AssignIdentifier(appointmentId);
+
+        context.Users.AddRange(patient, doctor);
+        context.Schedules.Add(schedule);
+        context.Timeslots.AddRange(originalTimeslot, newTimeslot);
+        context.Appointments.Add(appointment);
+        context.SaveChanges();
+
+        var persistedAppointment = context.Appointments.Single(x => x.Id == appointmentId);
+        Assert.Equal(doctorId, persistedAppointment.DoctorId);
+
+        var currentUserService = new TestApplicationUserService(doctorId);
+        Assert.Equal(doctorId, currentUserService.GetUserId);
+
+        var notificationService = new Mock<INotificationService>();
+        var service = new AppointmentService(context, currentUserService, notificationService.Object);
+
+        service.RescheduleAppointmentByDoctor(appointmentId, new UpdateAppointmentDto
+        {
+            AppointmentId = appointmentId,
+            TimeslotId = newTimeslot.Id,
+            Notes = "Doctor updated note",
+            Symptoms = "Updated symptoms"
+        });
+
+        var savedAppointment = context.Appointments.Include(x => x.Timeslot).Single(x => x.Id == appointmentId);
+        var oldSlot = context.Timeslots.Single(x => x.Id == originalTimeslot.Id);
+        var rescheduledSlot = context.Timeslots.Single(x => x.Id == newTimeslot.Id);
+
+        Assert.Equal(newTimeslot.Id, savedAppointment.TimeslotId);
+        Assert.Equal("Doctor updated note", savedAppointment.Notes);
+        Assert.Equal("Updated symptoms", savedAppointment.Symptoms);
+        Assert.False(oldSlot.IsBooked);
+        Assert.True(rescheduledSlot.IsBooked);
+
+        notificationService.Verify(
+            x => x.QueueNotification(
+                patientId,
+                NotificationType.Appointment,
+                "Appointment updated",
+                It.Is<string>(message => message.Contains("rescheduled")),
+                $"/patient/appointments/{appointmentId}",
+                $"patient-appointment-updated:{appointmentId:N}"),
             Times.Once);
     }
 
