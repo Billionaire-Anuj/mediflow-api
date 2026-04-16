@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mediflow.Infrastructure.Implementation.Jobs;
 
-public class AppointmentReminderNotificationJob(
-    IApplicationDbContext applicationDbContext,
-    INotificationService notificationService)
+public class AppointmentReminderNotificationJob(IApplicationDbContext applicationDbContext, INotificationService notificationService)
 {
     public Task SendPatientAppointmentRemindersAsync()
     {
@@ -38,8 +36,6 @@ public class AppointmentReminderNotificationJob(
             }
 
             var appointmentStart = appointment.Timeslot.Date.ToDateTime(appointment.Timeslot.StartTime);
-            // Queue the reminder once the appointment falls within the next ~30 minutes.
-            // If a previous minute was missed, later job runs can still create it.
             if (appointmentStart <= now || appointmentStart > reminderWindowEnd)
             {
                 continue;

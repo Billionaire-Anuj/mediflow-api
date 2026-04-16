@@ -280,11 +280,7 @@ public class PatientCreditService(
         return Convert.ToBase64String(hash);
     }
 
-    private static void ValidateEsewaSignature(
-        Dictionary<string, JsonElement> response,
-        string signedFieldNames,
-        string signature,
-        string secretKey)
+    private static void ValidateEsewaSignature(Dictionary<string, JsonElement> response, string signedFieldNames, string signature, string secretKey)
     {
         if (string.IsNullOrWhiteSpace(signedFieldNames) || string.IsNullOrWhiteSpace(signature))
         {

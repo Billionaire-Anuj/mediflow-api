@@ -330,3 +330,5 @@ mono*.blob
 *.jpg
 *.jpeg
 *.png
+*.webp
+*.avif

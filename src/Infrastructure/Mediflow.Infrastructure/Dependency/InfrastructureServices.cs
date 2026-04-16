@@ -49,9 +49,9 @@ public static class InfrastructureServices
             options.UseDatabase(databaseSettings.DbProvider, connectionString!);
         });
 
-        services.AddHangfire(configuration =>
+        services.AddHangfire(globalConfiguration =>
         {
-            configuration
+            globalConfiguration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings();
@@ -59,10 +59,10 @@ public static class InfrastructureServices
             switch (databaseSettings.DbProvider)
             {
                 case Constants.DbProviderKeys.Npgsql:
-                    configuration.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString));
+                    globalConfiguration.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString));
                     break;
                 case Constants.DbProviderKeys.SqlServer:
-                    configuration.UseSqlServerStorage(connectionString);
+                    globalConfiguration.UseSqlServerStorage(connectionString);
                     break;
                 default:
                     throw new InvalidOperationException($"Database provider '{databaseSettings.DbProvider}' is not supported for Hangfire.");
